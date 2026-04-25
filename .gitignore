@@ -1,0 +1,26 @@
+# ===== ASP.NET Core =====
+bin/
+obj/
+*.user
+*.suo
+.vs/
+appsettings.Development.json
+*.pfx
+
+# ===== Flutter =====
+SoloCoachMobile/.dart_tool/
+SoloCoachMobile/build/
+SoloCoachMobile/.flutter-plugins
+SoloCoachMobile/.flutter-plugins-dependencies
+SoloCoachMobile/*.g.dart
+
+# ===== React / Vite =====
+solocoachsite/node_modules/
+solocoachsite/dist/
+solocoachsite/.env.local
+solocoachsite/.env
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+*.log
