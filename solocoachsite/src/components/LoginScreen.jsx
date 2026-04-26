@@ -4,37 +4,43 @@ function LoginScreen({ onLogin, isBusy, error }) {
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
 
-  const submit = async (event) => {
-    event.preventDefault()
+  const submit = async (e) => {
+    e.preventDefault()
     await onLogin(login.trim(), password)
   }
 
   return (
     <div className="login-page">
       <form className="login-card" onSubmit={submit}>
-        <h1 className="login-title">SoloCoach</h1>
-        <p className="login-subtitle">Панель менеджеров и администраторов</p>
-        {error ? <div className="error-banner">{error}</div> : null}
+        <div className="login-logo">
+          <div className="login-logo-mark">SC</div>
+          <span className="login-title">SoloCoach</span>
+        </div>
+        <p className="login-subtitle">Панель управления</p>
+
+        {error && <div className="error-banner">{error}</div>}
 
         <label className="field">
-          <span>Логин</span>
+          <span className="field-label">Логин</span>
           <input
             type="text"
             value={login}
-            onChange={(event) => setLogin(event.target.value)}
+            onChange={(e) => setLogin(e.target.value)}
             required
             autoComplete="username"
+            placeholder="Введите логин"
           />
         </label>
 
         <label className="field">
-          <span>Пароль</span>
+          <span className="field-label">Пароль</span>
           <input
             type="password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
+            placeholder="Введите пароль"
           />
         </label>
 
