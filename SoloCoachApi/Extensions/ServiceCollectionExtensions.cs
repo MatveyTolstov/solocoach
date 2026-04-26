@@ -63,6 +63,7 @@ namespace SoloCoachApi.Extensions
             services.AddScoped<ApplicationLogService>();
             services.AddScoped<IEmailService, SmtpEmailService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddHttpClient<AiService>();
 
             return services;
         }
