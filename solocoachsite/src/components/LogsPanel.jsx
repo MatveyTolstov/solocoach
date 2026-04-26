@@ -60,19 +60,20 @@ function LogsPanel({ token }) {
 
   return (
     <section className="panel-block">
-      <div className="panel-actions">
-        <label className="field field-inline grow">
-          <span>Поиск по логам:</span>
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="login, workout, статус..."
-          />
-        </label>
+      <div className="panel-toolbar">
+        <div className="search-wrap">
+          <label className="field">
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Поиск по логам..."
+            />
+          </label>
+        </div>
         <button
           type="button"
-          className="btn btn-outline"
+          className="btn btn-ghost btn-sm"
           onClick={() => setRefreshKey((value) => value + 1)}
           disabled={loading}
         >

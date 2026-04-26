@@ -5,6 +5,8 @@ export async function apiRequest(path, options = {}) {
   
   // Если API_BASE_URL пустой, используем текущий origin
   const baseUrl = "http://localhost:5219"
+  // const baseUrl = "http://localhost:8081"
+
   const fullPath = path.startsWith('/') ? path : `/${path}`
   const urlString = baseUrl + fullPath
   

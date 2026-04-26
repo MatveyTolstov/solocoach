@@ -158,7 +158,7 @@ namespace SoloCoachApi.Services
             _context.PasswordResetTokens.Add(new PasswordResetToken
             {
                 UserId = user.IdUser,
-                CodeHash = codeHash,
+                TokenHash = codeHash,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(15),
                 IsUsed = false
             });
@@ -193,7 +193,7 @@ namespace SoloCoachApi.Services
                 .Include(t => t.User)
                 .FirstOrDefaultAsync(t =>
                     t.UserId == user.IdUser &&
-                    t.CodeHash == incomingCodeHash &&
+                    t.TokenHash == incomingCodeHash &&
                     !t.IsUsed &&
                     t.ExpiresAt > DateTime.UtcNow) ?? throw new ArgumentException("Недействительный или просроченный код сброса");
 

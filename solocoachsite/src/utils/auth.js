@@ -76,12 +76,14 @@ export function parseJwtSession(token) {
 
 export function resolveRoleAccess(roleId, roleName) {
   const normalized = (roleName || '').toLowerCase()
+
+  console.log(roleId)
   
   // Role 1 (Admin) - только админка
   const isAdmin = roleId === 1 || normalized.includes('admin') || normalized.includes('админ')
   
-  // Role 2 (Manager) - только менеджер кабинет
-  const isManager = roleId === 2 || normalized.includes('manager') || normalized.includes('менеджер') || normalized.includes('менедж')
+  // Role 3 (Manager) - только менеджер кабинет
+  const isManager = roleId === 3 || normalized.includes('manager') || normalized.includes('менеджер') || normalized.includes('менедж')
   
   // Исключаем админов из менеджерского кабинета
   return { 
