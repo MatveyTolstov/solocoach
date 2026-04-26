@@ -13,7 +13,7 @@ namespace SoloCoachApi.Mappers
                 Name = dto.Name,
                 Description = dto.Description,
                 Complexity = dto.Complexity,
-                PictureUrl = dto.PictureUrl
+                PictureUrl = dto.PictureUrl,
             };
         }
 

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "d:\\GovnoCodeC\\SoloCoachMobile\\solocouchmobile\\lib\\presentation\\pages",
+      "d:\\GovnoCodeC\\SoloCoachMobile\\solocouchmobile\\lib"
+    ]
+  }
+}
