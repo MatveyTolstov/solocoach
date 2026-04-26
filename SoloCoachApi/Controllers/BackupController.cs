@@ -40,23 +40,23 @@ namespace SoloCoachApi.Controllers
                 @"C:\Program Files (x86)\PostgreSQL\14\bin\pg_dump.exe",
             };
 
-            foreach (var path in commonPaths)
-            {
-                try
-                {
-                    if (System.IO.File.Exists(path))
-                    {
-                        _logger.LogInformation($"Found pg_dump at: {path}");
-                        return path;
-                    }
-                }
-                catch
-                {
-                    // ignore
-                }
-            }
+            //foreach (var path in commonPaths)
+            //{
+            //    try
+            //    {
+            //        if (System.IO.File.Exists(path))
+            //        {
+            //            _logger.LogInformation($"Found pg_dump at: {path}");
+            //            return path;
+            //        }
+            //    }
+            //    catch
+            //    {
+            //        // ignore
+            //    }
+            //}
 
-            throw new FileNotFoundException("pg_dump not found. Please ensure PostgreSQL is installed and in PATH.");
+            throw new FileNotFoundException("pg_dump не найдена. Убедитесь, что PostgreSQL установлен и добавлен в переменную PATH.");
         }
 
         [HttpPost("create")]
@@ -68,7 +68,7 @@ namespace SoloCoachApi.Controllers
                 var connectionString = _configuration.GetConnectionString("DefaultConnection");
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    return BadRequest(new { message = "Connection string not configured" });
+                    return BadRequest(new { message = "Строка подключения не настроена" });
                 }
 
                 // Парсим параметры подключения PostgreSQL
@@ -106,27 +106,27 @@ namespace SoloCoachApi.Controllers
                 {
                     if (process == null)
                     {
-                        return BadRequest(new { message = "Failed to start backup process" });
+                        return BadRequest(new { message = "Не удалось запустить процесс резервного копирования" });
                     }
 
                     // Ждем завершения процесса с timeout в 5 минут
                     if (!process.WaitForExit(300000))
                     {
                         process.Kill();
-                        return BadRequest(new { message = "Backup process timeout" });
+                        return BadRequest(new { message = "Истекло время ожидания процесса резервного копирования" });
                     }
 
                     if (process.ExitCode != 0)
                     {
                         var error = process.StandardError.ReadToEnd();
                         _logger.LogError($"Backup failed: {error}");
-                        return BadRequest(new { message = "Backup failed", error });
+                        return BadRequest(new { message = "Резервное копирование не удалось", error });
                     }
                 }
 
                 if (!System.IO.File.Exists(backupPath))
                 {
-                    return BadRequest(new { message = "Backup file was not created" });
+                    return BadRequest(new { message = "Файл резервной копии не был создан" });
                 }
 
                 var fileBytes = await System.IO.File.ReadAllBytesAsync(backupPath);
@@ -138,7 +138,7 @@ namespace SoloCoachApi.Controllers
                 }
                 catch
                 {
-                    // ignore
+                    // игнорируем ошибки при удалении временного файла
                 }
 
                 return new FileContentResult(fileBytes, "application/octet-stream")

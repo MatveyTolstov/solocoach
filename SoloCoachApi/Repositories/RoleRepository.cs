@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID role must be a positive number", nameof(id));
+                throw new ArgumentException("ID роли должен быть положительным числом", nameof(id));
             }
 
             var role = await _context.Roles.FindAsync(id);
 
             if (role == null)
             {
-                throw new KeyNotFoundException($"Role with ID {id} does not exist");
+                throw new KeyNotFoundException($"Роль с ID {id} не существует");
             }
 
             return _roleMapper.ToDto(role);
@@ -44,7 +44,7 @@ namespace SoloCoachApi.Repositories
             var entity = _roleMapper.ToModel(dto);
 
             if (await _context.Roles.AnyAsync(r => r.RoleName == dto.RoleName))
-                throw new InvalidOperationException($"���� � ��������� '{dto.RoleName}' ��� ����������");
+                throw new InvalidOperationException($"Роль с названием '{dto.RoleName}' уже существует");
 
             _context.Roles.Add(entity);
             await _context.SaveChangesAsync();
@@ -56,17 +56,17 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdRole <= 0)
             {
-                throw new ArgumentException("ID role must be a positive number", nameof(dto.IdRole));
+                throw new ArgumentException("ID роли должен быть положительным числом", nameof(dto.IdRole));
             }
 
             var existing = await _context.Roles.FindAsync(dto.IdRole);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"Role with ID {dto.IdRole} does not exist");
+                throw new KeyNotFoundException($"Роль с ID {dto.IdRole} не существует");
             }
 
-            if (await _context.Roles.AnyAsync(r => r.RoleName == dto.RoleName))
-                throw new InvalidOperationException($"���� � ��������� '{dto.RoleName}' ��� ����������");
+            if (await _context.Roles.AnyAsync(r => r.RoleName == dto.RoleName && r.IdRole != dto.IdRole))
+                throw new InvalidOperationException($"Роль с названием '{dto.RoleName}' уже существует");
 
             existing.RoleName = dto.RoleName;
 
@@ -79,13 +79,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID role must be a positive number", nameof(id));
+                throw new ArgumentException("ID роли должен быть положительным числом", nameof(id));
             }
 
             var role = await _context.Roles.FindAsync(id);
             if (role == null)
             {
-                throw new KeyNotFoundException($"Role with ID {id} does not exist");
+                throw new KeyNotFoundException($"Роль с ID {id} не существует");
             }
 
             _context.Roles.Remove(role);

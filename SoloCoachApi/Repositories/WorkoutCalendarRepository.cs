@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID workout calendar must be a positive number", nameof(id));
+                throw new ArgumentException("ID календаря тренировок должен быть положительным числом", nameof(id));
             }
 
             var calendar = await _context.WorkoutCalendars.FindAsync(id);
 
             if (calendar == null)
             {
-                throw new KeyNotFoundException($"WorkoutCalendar with ID {id} does not exist");
+                throw new KeyNotFoundException($"Календарь тренировок с ID {id} не найден");
             }
 
             return _workoutCalendarMapper.ToDto(calendar);
@@ -42,6 +42,7 @@ namespace SoloCoachApi.Repositories
         public async Task<List<WorkoutCalendarDto>> GetByUserIdAsync(int userId, DateTime? fromUtc, DateTime? toUtc)
         {
             var q = _context.WorkoutCalendars.AsNoTracking().Where(c => c.UserId == userId);
+
             if (fromUtc.HasValue)
             {
                 q = q.Where(c => c.Date >= fromUtc.Value);
@@ -71,16 +72,15 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdWorkoutCalendar <= 0)
             {
-                throw new ArgumentException("ID workout calendar must be a positive number", nameof(dto.IdWorkoutCalendar));
+                throw new ArgumentException("ID календаря тренировок должен быть положительным числом", nameof(dto.IdWorkoutCalendar));
             }
 
             var existing = await _context.WorkoutCalendars.FindAsync(dto.IdWorkoutCalendar);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"WorkoutCalendar with ID {dto.IdWorkoutCalendar} does not exist");
+                throw new KeyNotFoundException($"Календарь тренировок с ID {dto.IdWorkoutCalendar} не найден");
             }
 
-            existing.IdWorkoutCalendar = dto.IdWorkoutCalendar;
             existing.UserId = dto.UserId;
             existing.WorkoutId = dto.WorkoutId;
             existing.Date = dto.Date;
@@ -95,13 +95,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID workout calendar must be a positive number", nameof(id));
+                throw new ArgumentException("ID календаря тренировок должен быть положительным числом", nameof(id));
             }
 
             var calendar = await _context.WorkoutCalendars.FindAsync(id);
             if (calendar == null)
             {
-                throw new KeyNotFoundException($"WorkoutCalendar with ID {id} does not exist");
+                throw new KeyNotFoundException($"Календарь тренировок с ID {id} не найден");
             }
 
             _context.WorkoutCalendars.Remove(calendar);
@@ -109,4 +109,3 @@ namespace SoloCoachApi.Repositories
         }
     }
 }
-

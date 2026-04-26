@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID workout user log must be a positive number", nameof(id));
+                throw new ArgumentException("ID лога тренировки пользователя должен быть положительным числом", nameof(id));
             }
 
             var log = await _context.WorkoutUserLogs.FindAsync(id);
 
             if (log == null)
             {
-                throw new KeyNotFoundException($"WorkoutUserLog with ID {id} does not exist");
+                throw new KeyNotFoundException($"Лог тренировки пользователя с ID {id} не найден");
             }
 
             return _workoutUserLogMapper.ToDto(log);
@@ -46,6 +46,7 @@ namespace SoloCoachApi.Repositories
                 .Where(l => l.WorkoutUserId == workoutUserId)
                 .OrderBy(l => l.IdWorkoutUserLog)
                 .ToListAsync();
+
             return logs.Select(_workoutUserLogMapper.ToDto).ToList();
         }
 
@@ -64,16 +65,15 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdWorkoutUserLog <= 0)
             {
-                throw new ArgumentException("ID workout user log must be a positive number", nameof(dto.IdWorkoutUserLog));
+                throw new ArgumentException("ID лога тренировки пользователя должен быть положительным числом", nameof(dto.IdWorkoutUserLog));
             }
 
             var existing = await _context.WorkoutUserLogs.FindAsync(dto.IdWorkoutUserLog);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"WorkoutUserLog with ID {dto.IdWorkoutUserLog} does not exist");
+                throw new KeyNotFoundException($"Лог тренировки пользователя с ID {dto.IdWorkoutUserLog} не найден");
             }
 
-            existing.IdWorkoutUserLog = dto.IdWorkoutUserLog;
             existing.WorkoutId = dto.WorkoutId;
             existing.WorkoutUserId = dto.WorkoutUserId;
             existing.Repetitions = dto.Repetitions;
@@ -90,13 +90,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID workout user log must be a positive number", nameof(id));
+                throw new ArgumentException("ID лога тренировки пользователя должен быть положительным числом", nameof(id));
             }
 
             var log = await _context.WorkoutUserLogs.FindAsync(id);
             if (log == null)
             {
-                throw new KeyNotFoundException($"WorkoutUserLog with ID {id} does not exist");
+                throw new KeyNotFoundException($"Лог тренировки пользователя с ID {id} не найден");
             }
 
             _context.WorkoutUserLogs.Remove(log);
@@ -104,4 +104,3 @@ namespace SoloCoachApi.Repositories
         }
     }
 }
-

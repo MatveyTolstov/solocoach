@@ -81,7 +81,7 @@ namespace SoloCoachApi.Controllers
             {
                 if (id != dto.IdWorkout)
                 {
-                    return BadRequest("ID mismatch between route and body.");
+                    return BadRequest("Несоответствие ID между маршрутом и телом сообщения.");
                 }
                 var updated = await _workoutService.UpdateAsync(dto);
                 var userId = this.User.GetUserId();

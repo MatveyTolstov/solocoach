@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID plan workout must be a positive number", nameof(id));
+                throw new ArgumentException("ID плана тренировки должен быть положительным числом", nameof(id));
             }
 
             var plan = await _context.PlanWorkouts.FindAsync(id);
 
             if (plan == null)
             {
-                throw new KeyNotFoundException($"PlanWorkout with ID {id} does not exist");
+                throw new KeyNotFoundException($"План тренировки с ID {id} не существует");
             }
 
             return _planWorkoutMapper.ToDto(plan);
@@ -54,13 +54,13 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdPlanWorkout <= 0)
             {
-                throw new ArgumentException("ID plan workout must be a positive number", nameof(dto.IdPlanWorkout));
+                throw new ArgumentException("ID плана тренировки должен быть положительным числом", nameof(dto.IdPlanWorkout));
             }
 
             var existing = await _context.PlanWorkouts.FindAsync(dto.IdPlanWorkout);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"PlanWorkout with ID {dto.IdPlanWorkout} does not exist");
+                throw new KeyNotFoundException($"План тренировки с ID {dto.IdPlanWorkout} не существует");
             }
 
             existing.WorkoutId = dto.WorkoutId;
@@ -75,13 +75,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID plan workout must be a positive number", nameof(id));
+                throw new ArgumentException("ID плана тренировки должен быть положительным числом", nameof(id));
             }
 
             var plan = await _context.PlanWorkouts.FindAsync(id);
             if (plan == null)
             {
-                throw new KeyNotFoundException($"PlanWorkout with ID {id} does not exist");
+                throw new KeyNotFoundException($"План тренировки с ID {id} не существует");
             }
 
             _context.PlanWorkouts.Remove(plan);
@@ -89,4 +89,3 @@ namespace SoloCoachApi.Repositories
         }
     }
 }
-

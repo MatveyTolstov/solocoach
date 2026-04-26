@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID metrics user must be a positive number", nameof(id));
+                throw new ArgumentException("ID метрик пользователя должен быть положительным числом", nameof(id));
             }
 
             var metrics = await _context.MetricsUsers.FindAsync(id);
 
             if (metrics == null)
             {
-                throw new KeyNotFoundException($"MetricsUser with ID {id} does not exist");
+                throw new KeyNotFoundException($"Метрики пользователя с ID {id} не существуют");
             }
 
             return _metricsUserMapper.ToDto(metrics);
@@ -54,13 +54,13 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdMetricsUser <= 0)
             {
-                throw new ArgumentException("ID metrics user must be a positive number", nameof(dto.IdMetricsUser));
+                throw new ArgumentException("ID метрик пользователя должен быть положительным числом", nameof(dto.IdMetricsUser));
             }
 
             var existing = await _context.MetricsUsers.FindAsync(dto.IdMetricsUser);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"MetricsUser with ID {dto.IdMetricsUser} does not exist");
+                throw new KeyNotFoundException($"Метрики пользователя с ID {dto.IdMetricsUser} не существуют");
             }
 
             existing.Gender = dto.Gender;
@@ -69,10 +69,12 @@ namespace SoloCoachApi.Repositories
             existing.Weight = dto.Weight;
             existing.ExperienceLevel = dto.ExperienceLevel;
             existing.ActivityLevel = dto.ActivityLevel;
+
             if (!dto.GoalId.HasValue || dto.GoalId.Value <= 0)
             {
-                throw new ArgumentException("GoalId must be provided and greater than 0", nameof(dto.GoalId));
+                throw new ArgumentException("GoalId должен быть указан и больше 0", nameof(dto.GoalId));
             }
+
             existing.GoalId = dto.GoalId.Value;
 
             await _context.SaveChangesAsync();
@@ -84,13 +86,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID metrics user must be a positive number", nameof(id));
+                throw new ArgumentException("ID метрик пользователя должен быть положительным числом", nameof(id));
             }
 
             var metrics = await _context.MetricsUsers.FindAsync(id);
             if (metrics == null)
             {
-                throw new KeyNotFoundException($"MetricsUser with ID {id} does not exist");
+                throw new KeyNotFoundException($"Метрики пользователя с ID {id} не существуют");
             }
 
             _context.MetricsUsers.Remove(metrics);
@@ -98,4 +100,3 @@ namespace SoloCoachApi.Repositories
         }
     }
 }
-

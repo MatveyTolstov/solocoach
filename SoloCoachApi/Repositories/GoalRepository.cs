@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID goal must be a positive number", nameof(id));
+                throw new ArgumentException("ID цели должен быть положительным числом", nameof(id));
             }
 
             var goal = await _context.Goals.FindAsync(id);
 
             if (goal == null)
             {
-                throw new KeyNotFoundException($"Goal with ID {id} does not exist");
+                throw new KeyNotFoundException($"Цель с ID {id} не существует");
             }
 
             return _goalMapper.ToDto(goal);
@@ -54,13 +54,13 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdGoal <= 0)
             {
-                throw new ArgumentException("ID goal must be a positive number", nameof(dto.IdGoal));
+                throw new ArgumentException("ID цели должен быть положительным числом", nameof(dto.IdGoal));
             }
 
             var existing = await _context.Goals.FindAsync(dto.IdGoal);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"Goal with ID {dto.IdGoal} does not exist");
+                throw new KeyNotFoundException($"Цель с ID {dto.IdGoal} не существует");
             }
 
             existing.DateEnd = dto.DateEnd;
@@ -78,13 +78,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID goal must be a positive number", nameof(id));
+                throw new ArgumentException("ID цели должен быть положительным числом", nameof(id));
             }
 
             var goal = await _context.Goals.FindAsync(id);
             if (goal == null)
             {
-                throw new KeyNotFoundException($"Goal with ID {id} does not exist");
+                throw new KeyNotFoundException($"Цель с ID {id} не существует");
             }
 
             _context.Goals.Remove(goal);
@@ -92,4 +92,3 @@ namespace SoloCoachApi.Repositories
         }
     }
 }
-

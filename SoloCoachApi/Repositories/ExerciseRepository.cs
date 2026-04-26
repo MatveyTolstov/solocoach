@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID exercise must be a positive number", nameof(id));
+                throw new ArgumentException("ID упражнения должен быть положительным числом", nameof(id));
             }
 
             var exercise = await _context.Exercises.FindAsync(id);
 
             if (exercise == null)
             {
-                throw new KeyNotFoundException($"Exercise with ID {id} does not exist");
+                throw new KeyNotFoundException($"Упражнение с ID {id} не существует");
             }
 
             return _exerciseMapper.ToDto(exercise);
@@ -95,13 +95,13 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdExercise <= 0)
             {
-                throw new ArgumentException("ID exercise must be a positive number", nameof(dto.IdExercise));
+                throw new ArgumentException("ID упражнения должен быть положительным числом", nameof(dto.IdExercise));
             }
 
             var existing = await _context.Exercises.FindAsync(dto.IdExercise);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"Exercise with ID {dto.IdExercise} does not exist");
+                throw new KeyNotFoundException($"Упражнение с ID {dto.IdExercise} не существует");
             }
 
             existing.Name = dto.Name;
@@ -118,13 +118,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID exercise must be a positive number", nameof(id));
+                throw new ArgumentException("ID упражнения должен быть положительным числом", nameof(id));
             }
 
             var exercise = await _context.Exercises.FindAsync(id);
             if (exercise == null)
             {
-                throw new KeyNotFoundException($"Exercise with ID {id} does not exist");
+                throw new KeyNotFoundException($"Упражнение с ID {id} не существует");
             }
 
             _context.Exercises.Remove(exercise);
@@ -132,4 +132,3 @@ namespace SoloCoachApi.Repositories
         }
     }
 }
-

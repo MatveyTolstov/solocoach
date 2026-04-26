@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID workout user must be a positive number", nameof(id));
+                throw new ArgumentException("ID тренировки пользователя должен быть положительным числом", nameof(id));
             }
 
             var workoutUser = await _context.WorkoutUser.FindAsync(id);
 
             if (workoutUser == null)
             {
-                throw new KeyNotFoundException($"WorkoutUser with ID {id} does not exist");
+                throw new KeyNotFoundException($"Тренировка пользователя с ID {id} не найдена");
             }
 
             return _workoutUserMapper.ToDto(workoutUser);
@@ -46,6 +46,7 @@ namespace SoloCoachApi.Repositories
                 .Where(w => w.UserId == userId)
                 .OrderByDescending(w => w.Date)
                 .ToListAsync();
+
             return list.Select(_workoutUserMapper.ToDto).ToList();
         }
 
@@ -64,16 +65,15 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdWorkoutUser <= 0)
             {
-                throw new ArgumentException("ID workout user must be a positive number", nameof(dto.IdWorkoutUser));
+                throw new ArgumentException("ID тренировки пользователя должен быть положительным числом", nameof(dto.IdWorkoutUser));
             }
 
             var existing = await _context.WorkoutUser.FindAsync(dto.IdWorkoutUser);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"WorkoutUser with ID {dto.IdWorkoutUser} does not exist");
+                throw new KeyNotFoundException($"Тренировка пользователя с ID {dto.IdWorkoutUser} не найдена");
             }
 
-            existing.IdWorkoutUser = dto.IdWorkoutUser;
             existing.WorkoutId = dto.WorkoutId;
             existing.Date = dto.Date;
             existing.Duration = dto.Duration;
@@ -88,13 +88,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID workout user must be a positive number", nameof(id));
+                throw new ArgumentException("ID тренировки пользователя должен быть положительным числом", nameof(id));
             }
 
             var workoutUser = await _context.WorkoutUser.FindAsync(id);
             if (workoutUser == null)
             {
-                throw new KeyNotFoundException($"WorkoutUser with ID {id} does not exist");
+                throw new KeyNotFoundException($"Тренировка пользователя с ID {id} не найдена");
             }
 
             _context.WorkoutUser.Remove(workoutUser);
@@ -102,4 +102,3 @@ namespace SoloCoachApi.Repositories
         }
     }
 }
-

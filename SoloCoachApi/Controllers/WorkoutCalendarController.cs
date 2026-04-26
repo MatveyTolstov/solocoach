@@ -157,7 +157,7 @@ public class WorkoutCalendarController : ControllerBase
 
         if (id != dto.IdWorkoutCalendar)
         {
-            return BadRequest("ID mismatch between route and body.");
+            return BadRequest("Несоответствие ID между маршрутом и телом сообщения.");
         }
 
         var existing = await _workoutCalendarService.GetByIdAsync(id);

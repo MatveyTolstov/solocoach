@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID user must be a positive number", nameof(id));
+                throw new ArgumentException("ID пользователя должен быть положительным числом", nameof(id));
             }
 
             var user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
-                throw new KeyNotFoundException($"User with ID {id} does not exist");
+                throw new KeyNotFoundException($"Пользователь с ID {id} не найден");
             }
 
             return _userMapper.ToDto(user);
@@ -60,13 +60,13 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdUser <= 0)
             {
-                throw new ArgumentException("ID user must be a positive number", nameof(dto.IdUser));
+                throw new ArgumentException("ID пользователя должен быть положительным числом", nameof(dto.IdUser));
             }
 
             var existing = await _context.Users.FindAsync(dto.IdUser);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"User with ID {dto.IdUser} does not exist");
+                throw new KeyNotFoundException($"Пользователь с ID {dto.IdUser} не найден");
             }
 
             existing.Name = dto.Name;
@@ -90,13 +90,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID user must be a positive number", nameof(id));
+                throw new ArgumentException("ID пользователя должен быть положительным числом", nameof(id));
             }
 
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
-                throw new KeyNotFoundException($"User with ID {id} does not exist");
+                throw new KeyNotFoundException($"Пользователь с ID {id} не найден");
             }
 
             _context.Users.Remove(user);
@@ -109,4 +109,3 @@ namespace SoloCoachApi.Repositories
         }
     }
 }
-

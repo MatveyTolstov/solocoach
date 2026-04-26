@@ -58,7 +58,7 @@ namespace SoloCoachApi.Controllers
         {
             try
             {
-                if (id != dto.IdTrainingExercise) return BadRequest("ID mismatch between route and body.");
+                if (id != dto.IdTrainingExercise) return BadRequest("Несоответствие ID между маршрутом и телом сообщения.");
                 var updated = await _trainingExerciseService.UpdateAsync(dto);
                 var userId = this.User.GetUserId();
                 await _loggingService.LogActionAsync(userId: userId, action: "UPDATE_TRAINING_EXERCISE", entityType: "TrainingExercise", entityId: updated.IdTrainingExercise, details: new { exerciseId = updated.ExerciseId });

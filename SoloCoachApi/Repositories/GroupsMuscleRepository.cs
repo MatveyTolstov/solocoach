@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID groups muscle must be a positive number", nameof(id));
+                throw new ArgumentException("ID группы мышц должен быть положительным числом", nameof(id));
             }
 
             var group = await _context.GroupsMuscles.FindAsync(id);
 
             if (group == null)
             {
-                throw new KeyNotFoundException($"GroupsMuscle with ID {id} does not exist");
+                throw new KeyNotFoundException($"Группа мышц с ID {id} не существует");
             }
 
             return _groupsMuscleMapper.ToDto(group);
@@ -54,13 +54,13 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdGroupsMuscle <= 0)
             {
-                throw new ArgumentException("ID groups muscle must be a positive number", nameof(dto.IdGroupsMuscle));
+                throw new ArgumentException("ID группы мышц должен быть положительным числом", nameof(dto.IdGroupsMuscle));
             }
 
             var existing = await _context.GroupsMuscles.FindAsync(dto.IdGroupsMuscle);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"GroupsMuscle with ID {dto.IdGroupsMuscle} does not exist");
+                throw new KeyNotFoundException($"Группа мышц с ID {dto.IdGroupsMuscle} не существует");
             }
 
             existing.Name = dto.Name;
@@ -74,13 +74,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID groups muscle must be a positive number", nameof(id));
+                throw new ArgumentException("ID группы мышц должен быть положительным числом", nameof(id));
             }
 
             var group = await _context.GroupsMuscles.FindAsync(id);
             if (group == null)
             {
-                throw new KeyNotFoundException($"GroupsMuscle with ID {id} does not exist");
+                throw new KeyNotFoundException($"Группа мышц с ID {id} не существует");
             }
 
             _context.GroupsMuscles.Remove(group);
@@ -88,4 +88,3 @@ namespace SoloCoachApi.Repositories
         }
     }
 }
-

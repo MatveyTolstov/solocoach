@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID training exercise must be a positive number", nameof(id));
+                throw new ArgumentException("ID тренировочного упражнения должен быть положительным числом", nameof(id));
             }
 
             var trainingExercise = await _context.TrainingExercises.FindAsync(id);
 
             if (trainingExercise == null)
             {
-                throw new KeyNotFoundException($"TrainingExercise with ID {id} does not exist");
+                throw new KeyNotFoundException($"Тренировочное упражнение с ID {id} не существует");
             }
 
             return _trainingExerciseMapper.ToDto(trainingExercise);
@@ -54,13 +54,13 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdTrainingExercise <= 0)
             {
-                throw new ArgumentException("ID training exercise must be a positive number", nameof(dto.IdTrainingExercise));
+                throw new ArgumentException("ID тренировочного упражнения должен быть положительным числом", nameof(dto.IdTrainingExercise));
             }
 
             var existing = await _context.TrainingExercises.FindAsync(dto.IdTrainingExercise);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"TrainingExercise with ID {dto.IdTrainingExercise} does not exist");
+                throw new KeyNotFoundException($"Тренировочное упражнение с ID {dto.IdTrainingExercise} не существует");
             }
 
             existing.ExerciseId = dto.ExerciseId;
@@ -78,13 +78,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID training exercise must be a positive number", nameof(id));
+                throw new ArgumentException("ID тренировочного упражнения должен быть положительным числом", nameof(id));
             }
 
             var trainingExercise = await _context.TrainingExercises.FindAsync(id);
             if (trainingExercise == null)
             {
-                throw new KeyNotFoundException($"TrainingExercise with ID {id} does not exist");
+                throw new KeyNotFoundException($"Тренировочное упражнение с ID {id} не существует");
             }
 
             _context.TrainingExercises.Remove(trainingExercise);
@@ -92,4 +92,3 @@ namespace SoloCoachApi.Repositories
         }
     }
 }
-

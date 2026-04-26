@@ -54,9 +54,9 @@ namespace SoloCoachApi.Services
                     entityId: user.IdUser,
                     details: new { login, reason = "Password not set" },
                     status: "ERROR",
-                    errorMessage: "Password not set"
+                    errorMessage: "Пароль не установлен"
                 );
-                throw new ArgumentException("User password not set. Please contact administrator.");
+                throw new ArgumentException("Пароль пользователя не установлен. Пожалуйста, свяжитесь с администратором.");
             }
 
             if (!BCrypt.Net.BCrypt.Verify(password, user.Password))
@@ -70,7 +70,7 @@ namespace SoloCoachApi.Services
                     status: "ERROR",
                     errorMessage: "Invalid password"
                 );
-                throw new UnauthorizedAccessException("Invalid login or password");
+                throw new UnauthorizedAccessException("Неверный логин или пароль");
             }
 
             await _loggingService.LogActionAsync(
@@ -93,11 +93,11 @@ namespace SoloCoachApi.Services
                     action: "REGISTER_FAILED",
                     entityType: "User",
                     entityId: null,
-                    details: new { login = dto.Login, reason = "Login already exists" },
+                    details: new { login = dto.Login, reason = "Логин уже существует" },
                     status: "ERROR",
-                    errorMessage: "Login already exists"
+                    errorMessage: "Логин уже существует"
                 );
-                throw new ArgumentException("Login already exists");
+                throw new ArgumentException("Логин уже существует");
             }
 
             if (await _context.Users.AnyAsync(x => x.Email == dto.Email))
@@ -111,11 +111,11 @@ namespace SoloCoachApi.Services
                     status: "ERROR",
                     errorMessage: "Email already exists"
                 );
-                throw new ArgumentException("Email already exists");
+                throw new ArgumentException("Email уже существует");
             }
 
             if (string.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 6)
-                throw new ("Password must be at least 6 characters");
+                throw new ArgumentException("Пароль должен состоять как минимум из 6 символов");
 
             var user = new User
             {
@@ -158,7 +158,7 @@ namespace SoloCoachApi.Services
             _context.PasswordResetTokens.Add(new PasswordResetToken
             {
                 UserId = user.IdUser,
-                TokenHash = codeHash,
+                CodeHash = codeHash,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(15),
                 IsUsed = false
             });
@@ -176,14 +176,14 @@ namespace SoloCoachApi.Services
             var email = dto.Email?.Trim();
             var code = dto.Code?.Trim();
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code))
-                throw new ArgumentException("Email and reset code are required.");
+                throw new ArgumentException("Email и код сброса обязательны для заполнения.");
 
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
             if (user == null)
-                throw new ArgumentException("Invalid or expired reset code.");
+                throw new ArgumentException("Недействительный или просроченный код сброса.");
 
             if(BCrypt.Net.BCrypt.Verify(dto.NewPassword, user.Password))
-                throw new ArgumentException("New password cannot be the same as the old password.");
+                throw new ArgumentException("Новый пароль не может совпадать с предыдущим.");
 
             var incomingCodeHash = Convert.ToHexString(
                 SHA256.HashData(Encoding.UTF8.GetBytes(code))
@@ -193,12 +193,12 @@ namespace SoloCoachApi.Services
                 .Include(t => t.User)
                 .FirstOrDefaultAsync(t =>
                     t.UserId == user.IdUser &&
-                    t.TokenHash == incomingCodeHash &&
+                    t.CodeHash == incomingCodeHash &&
                     !t.IsUsed &&
-                    t.ExpiresAt > DateTime.UtcNow) ?? throw new ArgumentException("Invalid or expired reset code.");
+                    t.ExpiresAt > DateTime.UtcNow) ?? throw new ArgumentException("Недействительный или просроченный код сброса");
 
             if (string.IsNullOrWhiteSpace(dto.NewPassword) || dto.NewPassword.Length < 6)
-                throw new ArgumentException("Password must be at least 6 characters.");
+                throw new ArgumentException("Пароль должен состоять как минимум из 6 символов");
 
             resetToken.User.Password = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
             resetToken.IsUsed = true;

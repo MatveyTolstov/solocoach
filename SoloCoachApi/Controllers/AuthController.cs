@@ -48,11 +48,11 @@ public class AuthController : ControllerBase
 
         if (string.IsNullOrWhiteSpace(email))
         {
-            return BadRequest("Email cannot be empty");
+            return BadRequest("Адрес электронной почты не может быть пустым");
         }
 
         await _authService.ForgotPasswordAsync(email);
-        return Ok("If this email exists, a reset code has been sent.");
+        return Ok("Если этот адрес электронной почты существует, код сброса был отправлен");
     }
 
     [HttpPost("reset-password")]
@@ -61,7 +61,7 @@ public class AuthController : ControllerBase
         try
         {
             await _authService.ResetPasswordAsync(dto);
-            return Ok("Password has been reset successfully.");
+            return Ok("Пароль был успешно сброшен");
         }
         catch (ArgumentException ex)
         {

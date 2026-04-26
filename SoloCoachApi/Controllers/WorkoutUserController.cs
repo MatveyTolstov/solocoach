@@ -64,7 +64,7 @@ public class WorkoutUserController : ControllerBase
     {
         try
         {
-            if (id != dto.IdWorkoutUser) return BadRequest("ID mismatch between route and body.");
+            if (id != dto.IdWorkoutUser) return BadRequest("Несоответствие ID между маршрутом и телом сообщения.");
             var updated = await _workoutUserService.UpdateAsync(dto);
             var userId = this.User.GetUserId();
             await _loggingService.LogActionAsync(userId: userId, action: "UPDATE_WORKOUT_USER", entityType: "WorkoutUser", entityId: updated.IdWorkoutUser, details: new { workoutId = updated.WorkoutId, userId = updated.UserId });
@@ -150,7 +150,7 @@ public class WorkoutUserController : ControllerBase
 
         if (id != dto.IdWorkoutUser)
         {
-            return BadRequest("ID mismatch between route and body.");
+            return BadRequest("Несоответствие ID между маршрутом и телом сообщения.");
         }
 
         var existing = await _workoutUserService.GetByIdAsync(id);

@@ -20,14 +20,14 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID exercise-groups-muscle must be a positive number", nameof(id));
+                throw new ArgumentException("ID связи упражнение-мышца должен быть положительным числом", nameof(id));
             }
 
             var entity = await _context.ExercisesGroups.FindAsync(id);
 
             if (entity == null)
             {
-                throw new KeyNotFoundException($"ExerciseGroupsMuscle with ID {id} does not exist");
+                throw new KeyNotFoundException($"Связь ExerciseGroupsMuscle с ID {id} не существует");
             }
 
             return _exerciseGroupsMuscleMapper.ToDto(entity);
@@ -54,13 +54,13 @@ namespace SoloCoachApi.Repositories
         {
             if (dto.IdExerciseGroupsMuscle <= 0)
             {
-                throw new ArgumentException("ID exercise-groups-muscle must be a positive number", nameof(dto.IdExerciseGroupsMuscle));
+                throw new ArgumentException("ID связи упражнение-мышца должен быть положительным числом", nameof(dto.IdExerciseGroupsMuscle));
             }
 
             var existing = await _context.ExercisesGroups.FindAsync(dto.IdExerciseGroupsMuscle);
             if (existing == null)
             {
-                throw new KeyNotFoundException($"ExerciseGroupsMuscle with ID {dto.IdExerciseGroupsMuscle} does not exist");
+                throw new KeyNotFoundException($"Связь ExerciseGroupsMuscle с ID {dto.IdExerciseGroupsMuscle} не существует");
             }
 
             existing.ExerciseId = dto.ExerciseId;
@@ -75,13 +75,13 @@ namespace SoloCoachApi.Repositories
         {
             if (id <= 0)
             {
-                throw new ArgumentException("ID exercise-groups-muscle must be a positive number", nameof(id));
+                throw new ArgumentException("ID связи упражнение-мышца должен быть положительным числом", nameof(id));
             }
 
             var entity = await _context.ExercisesGroups.FindAsync(id);
             if (entity == null)
             {
-                throw new KeyNotFoundException($"ExerciseGroupsMuscle with ID {id} does not exist");
+                throw new KeyNotFoundException($"Связь ExerciseGroupsMuscle с ID {id} не существует");
             }
 
             _context.ExercisesGroups.Remove(entity);
@@ -89,4 +89,3 @@ namespace SoloCoachApi.Repositories
         }
     }
 }
-
