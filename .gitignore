@@ -6,6 +6,7 @@ obj/
 .vs/
 appsettings.Development.json
 *.pfx
+.claude
 
 # ===== Flutter =====
 SoloCoachMobile/.dart_tool/
