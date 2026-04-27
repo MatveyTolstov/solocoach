@@ -1,8 +1,10 @@
+import { API_BASE_URL } from './auth.js'
+
 export async function apiRequest(path, options = {}) {
   const { token, method = 'GET', query, body } = options
   
   const fullPath = path.startsWith('/') ? path : `/${path}`
-  const url = new URL(window.location.origin + fullPath)
+  const url = new URL(API_BASE_URL + fullPath)
   
   if (query) {
     for (const [key, value] of Object.entries(query)) {
