@@ -7,8 +7,7 @@ services:
       POSTGRES_DB: SoloCoach
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: "1"
-    ports:
-      - "5432:5432"
+    # ports больше не нужны снаружи, но можно оставить для дебага
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -19,15 +18,14 @@ services:
       dockerfile: Dockerfile
     container_name: solocoach_api
     restart: always
-    ports:
-      - "8081:8080"
+    # порт 8081 больше не нужно открывать наружу
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=db;Database=SoloCoach;Username=postgres;Password=1;Port=5432
       - Smtp__Host=smtp.gmail.com
       - Smtp__Port=587
       - Smtp__User=solocoachsport@gmail.com
-      - Smtp__Password=твой_пароль
+      - Smtp__Password=jddp wtwe kmsu mhzl
     depends_on:
       - db
 
@@ -37,9 +35,21 @@ services:
       dockerfile: Dockerfile
     container_name: solocoach_site
     restart: always
-    ports:
-      - "3000:80"
+    # порт 3000 больше не нужно открывать наружу
     depends_on:
+      - api
+
+  nginx:
+    image: nginx:alpine
+    container_name: solocoach_nginx
+    restart: always
+    ports:
+      - "80:80"      # HTTP
+      - "443:443"    # HTTPS (для certbot позже)
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - site
       - api
 
 volumes:
