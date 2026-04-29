@@ -155,8 +155,8 @@ function App() {
     <div className="app">
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <div className="logo-mark">SC</div>
-          <span className="logo-text">SoloCoach</span>
+          <div className="logo-mark">ССТ</div>
+          <span className="logo-text">СамСебеТренер</span>
         </div>
 
         {/* Workspace switcher — только если есть оба доступа */}
