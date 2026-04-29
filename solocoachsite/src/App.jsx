@@ -135,8 +135,8 @@ function App() {
       <div className="login-page">
         <div className="login-card" style={{ textAlign: 'center' }}>
           <div className="login-logo">
-            <div className="login-logo-mark">SC</div>
-            <span className="login-title">SoloCoach</span>
+            <div className="login-logo-mark">ССТ</div>
+            <span className="login-title">СамСебеТренер</span>
           </div>
           <p className="login-subtitle" style={{ marginBottom: 8 }}>Панель управления</p>
           <div className="error-banner" style={{ textAlign: 'left', marginBottom: 20 }}>

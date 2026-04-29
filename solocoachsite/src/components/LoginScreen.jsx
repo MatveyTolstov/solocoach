@@ -13,8 +13,8 @@ function LoginScreen({ onLogin, isBusy, error }) {
     <div className="login-page">
       <form className="login-card" onSubmit={submit}>
         <div className="login-logo">
-          <div className="login-logo-mark">SC</div>
-          <span className="login-title">SoloCoach</span>
+          <div className="login-logo-mark">ССТ</div>
+          <span className="login-title">СамСебеТренер</span>
         </div>
         <p className="login-subtitle">Панель управления</p>
 
