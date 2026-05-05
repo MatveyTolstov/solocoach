@@ -176,6 +176,11 @@ namespace SoloCoachApi.Controllers
         [HttpPost("restore")]
         public async Task<IActionResult> RestoreBackup(IFormFile file)
         {
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if(fileExtension != ".sql")
+                return BadRequest(new { message = "Неподдерживаемый формат файла. Пожалуйста, загрузите .sql файл." });
+
             if (file == null || file.Length == 0)
                 return BadRequest(new { message = "Файл не передан." });
 
