@@ -153,18 +153,19 @@ export const ENTITY_CONFIGS = {
     title: 'Упражнения',
     apiPath: '/api/Exercise',
     idField: 'idExercise',
+    gifUploadApiPath: '/api/Exercise',
     tableColumns: [
       { key: 'name', label: 'Название' },
-      { key: 'description', label: 'Описание' },
       { key: 'complexity', label: 'Сложность' },
-      { key: 'pictureUrl', label: 'Ссылка на картинку' },
+      { key: 'pictureUrl', label: 'Картинка' },
+      { key: 'videoUrl', label: 'GIF', type: 'gif' },
     ],
     formFields: [
       { key: 'name', label: 'Название', type: 'text', required: true },
       { key: 'description', label: 'Описание', type: 'textarea', emptyAsNull: true },
-      { 
-        key: 'complexity', 
-        label: 'Сложность', 
+      {
+        key: 'complexity',
+        label: 'Сложность',
         type: 'select',
         emptyAsNull: true,
         staticOptions: [

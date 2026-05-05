@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { apiRequest } from '../utils/api.js'
+import { API_BASE_URL } from '../utils/auth.js'
 import { ensureArray, getValue, toNullableNumber, formatDateTime } from '../utils/helpers.js'
 import { useToast } from './Toast.jsx'
 
@@ -15,6 +16,13 @@ function CrudSection({ token, config }) {
   const [createForm, setCreateForm] = useState({})
   const [refreshKey, setRefreshKey] = useState(0)
   const [selectOptions, setSelectOptions] = useState({})
+  const [uploadingGifId, setUploadingGifId] = useState(null)
+  const [pendingGifId, setPendingGifId] = useState(null)
+  const fileInputRef = useRef(null)
+  const gifPanelInputRef = useRef(null)
+  const [gifPanelId, setGifPanelId] = useState('')
+  const [gifPanelFile, setGifPanelFile] = useState(null)
+  const [gifPanelUploading, setGifPanelUploading] = useState(false)
 
   const idField = config.idField
 
@@ -149,6 +157,75 @@ function CrudSection({ token, config }) {
     }
   }
 
+  const handleGifUploadClick = (id) => {
+    setPendingGifId(id)
+    fileInputRef.current?.click()
+  }
+
+  const handleFileSelected = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file || pendingGifId == null) return
+    const id = pendingGifId
+    setPendingGifId(null)
+    setUploadingGifId(id)
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      const response = await fetch(`${API_BASE_URL}${config.gifUploadApiPath}/${id}/video`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      })
+      if (!response.ok) throw new Error(await response.text() || `HTTP ${response.status}`)
+      setRefreshKey((v) => v + 1)
+      notify('GIF успешно загружен', 'success')
+    } catch (err) {
+      notify(`Ошибка загрузки GIF: ${err.message}`, 'error')
+    } finally {
+      setUploadingGifId(null)
+    }
+  }
+
+  const handleGifDelete = async (id) => {
+    if (!confirm('Удалить GIF?')) return
+    try {
+      const response = await fetch(`${API_BASE_URL}${config.gifUploadApiPath}/${id}/video`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!response.ok) throw new Error(await response.text() || `HTTP ${response.status}`)
+      setRefreshKey((v) => v + 1)
+      notify('GIF удалён', 'success')
+    } catch (err) {
+      notify(`Ошибка удаления GIF: ${err.message}`, 'error')
+    }
+  }
+
+  const handleGifPanelUpload = async () => {
+    if (!gifPanelId || !gifPanelFile) return
+    setGifPanelUploading(true)
+    try {
+      const form = new FormData()
+      form.append('file', gifPanelFile)
+      const response = await fetch(`${API_BASE_URL}${config.gifUploadApiPath}/${gifPanelId}/video`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      })
+      if (!response.ok) throw new Error(await response.text() || `HTTP ${response.status}`)
+      setGifPanelFile(null)
+      setGifPanelId('')
+      if (gifPanelInputRef.current) gifPanelInputRef.current.value = ''
+      setRefreshKey((v) => v + 1)
+      notify('GIF успешно загружен', 'success')
+    } catch (err) {
+      notify(`Ошибка загрузки GIF: ${err.message}`, 'error')
+    } finally {
+      setGifPanelUploading(false)
+    }
+  }
+
   const getSelectLabel = (fieldKey, value) => {
     const opts = selectOptions[fieldKey] || []
     const opt = opts.find((o) => o.value === value || o.value === Number(value))
@@ -164,7 +241,6 @@ function CrudSection({ token, config }) {
     if (field.type === 'select')
       return (
         <select value={editing[col.key] ?? ''} onChange={onChange}>
-          <option value="">-- Выберите --</option>
           {(selectOptions[col.key] || []).map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
@@ -175,6 +251,15 @@ function CrudSection({ token, config }) {
 
   return (
     <section className="panel-block">
+      {config.gifUploadApiPath && (
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".gif,image/gif"
+          style={{ display: 'none' }}
+          onChange={handleFileSelected}
+        />
+      )}
       {/* Форма создания — над таблицей */}
       <div className="form-create-card">
         <p className="section-title">Новая запись</p>
@@ -194,7 +279,6 @@ function CrudSection({ token, config }) {
                   onChange={(e) => setCreateForm((p) => ({ ...p, [field.key]: e.target.value }))}
                   required={field.required}
                 >
-                  <option value="">-- Выберите --</option>
                   {(selectOptions[field.key] || []).map((o) => (
                     <option key={o.value} value={o.value}>{o.label}</option>
                   ))}
@@ -215,6 +299,61 @@ function CrudSection({ token, config }) {
           {saving ? 'Создание...' : 'Создать'}
         </button>
       </div>
+
+      {/* Панель загрузки GIF */}
+      {config.gifUploadApiPath && (
+        <div className="form-create-card">
+          <p className="section-title">Загрузить GIF</p>
+          <input
+            ref={gifPanelInputRef}
+            type="file"
+            accept=".gif,image/gif"
+            style={{ display: 'none' }}
+            onChange={(e) => setGifPanelFile(e.target.files?.[0] ?? null)}
+          />
+          <div className="form-grid">
+            <label className="field">
+              <span className="field-label">Запись</span>
+              <select value={gifPanelId} onChange={(e) => setGifPanelId(e.target.value)}>
+                <option value="">— выберите —</option>
+                {items.map((item) => (
+                  <option key={item[idField]} value={item[idField]}>
+                    {item[config.tableColumns[0].key] ?? item[idField]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              <span className="field-label">Файл</span>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={() => gifPanelInputRef.current?.click()}
+                >
+                  {gifPanelFile ? gifPanelFile.name : 'Выбрать .gif'}
+                </button>
+                {gifPanelFile && (
+                  <button
+                    type="button"
+                    className="btn btn-danger-ghost btn-sm"
+                    onClick={() => { setGifPanelFile(null); if (gifPanelInputRef.current) gifPanelInputRef.current.value = '' }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </label>
+          </div>
+          <button
+            className="btn btn-primary"
+            onClick={handleGifPanelUpload}
+            disabled={!gifPanelId || !gifPanelFile || gifPanelUploading}
+          >
+            {gifPanelUploading ? 'Загрузка...' : 'Загрузить GIF'}
+          </button>
+        </div>
+      )}
 
       {/* Тулбар поиска */}
       <div className="panel-toolbar">
@@ -263,6 +402,15 @@ function CrudSection({ token, config }) {
                       }
                       const value = getValue(item, col.key)
                       const field = config.formFields.find((f) => f.key === col.key)
+                      if (col.type === 'gif') {
+                        return (
+                          <td key={col.key}>
+                            {value
+                              ? <a href={value} target="_blank" rel="noopener noreferrer">Открыть</a>
+                              : '—'}
+                          </td>
+                        )
+                      }
                       const display = field?.type === 'select' ? getSelectLabel(col.key, value) : value
                       return (
                         <td key={col.key}>
@@ -281,6 +429,22 @@ function CrudSection({ token, config }) {
                           <>
                             <button className="btn btn-outline btn-sm" onClick={() => setEditing({ ...item })}>Изменить</button>
                             <button className="btn btn-danger-ghost btn-sm" onClick={() => handleDelete(item)}>Удалить</button>
+                            {config.gifUploadApiPath && (
+                              <>
+                                <button
+                                  className="btn btn-outline btn-sm"
+                                  onClick={() => handleGifUploadClick(id)}
+                                  disabled={uploadingGifId === id}
+                                >
+                                  {uploadingGifId === id ? '...' : item.videoUrl ? 'GIF ↑' : 'GIF +'}
+                                </button>
+                                {item.videoUrl && (
+                                  <button className="btn btn-danger-ghost btn-sm" onClick={() => handleGifDelete(id)}>
+                                    GIF ✕
+                                  </button>
+                                )}
+                              </>
+                            )}
                           </>
                         )}
                       </div>

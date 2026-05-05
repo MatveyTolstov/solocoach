@@ -1,14 +1,18 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import LogsPanel from '../components/LogsPanel.jsx'
 import UserManagementSection from '../components/UserManagementSection.jsx'
 import CrudSection from '../components/CrudSection.jsx'
 import { ENTITY_CONFIGS, ADMIN_DATABASE_KEYS } from '../constants/config.js'
 import { useToast } from '../components/Toast.jsx'
+import { API_BASE_URL } from '../utils/auth.js'
 
 function AdminWorkspace({ token, roles, activeTab }) {
   const notify = useToast()
   const [selectedTable, setSelectedTable] = useState(ADMIN_DATABASE_KEYS[0])
   const [backupLoading, setBackupLoading] = useState(false)
+  const [restoreFile, setRestoreFile] = useState(null)
+  const [restoreLoading, setRestoreLoading] = useState(false)
+  const restoreInputRef = useRef(null)
 
   const handleCreateBackup = async () => {
     setBackupLoading(true)
@@ -32,6 +36,31 @@ function AdminWorkspace({ token, roles, activeTab }) {
       notify(`Ошибка создания бекапа: ${error.message}`, 'error')
     } finally {
       setBackupLoading(false)
+    }
+  }
+
+  const handleRestoreBackup = async () => {
+    if (!restoreFile) return
+    if (!confirm(`Восстановить БД из файла "${restoreFile.name}"? Текущие данные будут перезаписаны.`)) return
+    setRestoreLoading(true)
+    try {
+      const form = new FormData()
+      form.append('file', restoreFile)
+      const response = await fetch(`${API_BASE_URL}/api/Backup/restore`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      })
+      if (!response.ok) {
+        const text = await response.text()
+        throw new Error(text || `HTTP ${response.status}`)
+      }
+      setRestoreFile(null)
+      notify('База данных успешно восстановлена', 'success')
+    } catch (error) {
+      notify(`Ошибка восстановления: ${error.message}`, 'error')
+    } finally {
+      setRestoreLoading(false)
     }
   }
 
@@ -64,7 +93,8 @@ function AdminWorkspace({ token, roles, activeTab }) {
       {activeTab === 'backup' && (
         <div className="backup-section">
           <h3>Резервные копии</h3>
-          <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center' }}>
             <button
               type="button"
               className="btn btn-primary"
@@ -74,9 +104,47 @@ function AdminWorkspace({ token, roles, activeTab }) {
               {backupLoading ? 'Создание...' : 'Создать резервную копию'}
             </button>
           </div>
-          <div className="info-banner">
+          <div className="info-banner" style={{ marginBottom: 24 }}>
             Нажмите кнопку выше чтобы создать резервную копию базы данных.
             Файл будет автоматически скачан на ваш компьютер.
+          </div>
+
+          <h3>Восстановление из файла</h3>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center' }}>
+            <input
+              ref={restoreInputRef}
+              type="file"
+              accept=".sql"
+              style={{ display: 'none' }}
+              onChange={(e) => setRestoreFile(e.target.files?.[0] ?? null)}
+            />
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => restoreInputRef.current?.click()}
+            >
+              {restoreFile ? restoreFile.name : 'Выбрать .sql файл'}
+            </button>
+            {restoreFile && (
+              <button
+                type="button"
+                className="btn btn-danger-ghost"
+                onClick={() => { setRestoreFile(null); restoreInputRef.current.value = '' }}
+              >
+                Очистить
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleRestoreBackup}
+              disabled={!restoreFile || restoreLoading}
+            >
+              {restoreLoading ? 'Восстановление...' : 'Восстановить'}
+            </button>
+          </div>
+          <div className="info-banner">
+            Загрузите .sql файл резервной копии. Внимание: текущие данные будут перезаписаны.
           </div>
         </div>
       )}
