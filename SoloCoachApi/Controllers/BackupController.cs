@@ -127,17 +127,19 @@ namespace SoloCoachApi.Controllers
                         return BadRequest(new { message = "Не удалось запустить процесс резервного копирования" });
                     }
 
-                    // Ждем завершения процесса с timeout в 5 минут
-                    if (!process.WaitForExit(300000))
+                    var stderrTask = process.StandardError.ReadToEndAsync();
+
+                    var completed = await Task.Run(() => process.WaitForExit(300000));
+                    if (!completed)
                     {
                         process.Kill();
                         return BadRequest(new { message = "Истекло время ожидания процесса резервного копирования" });
                     }
 
+                    var error = await stderrTask;
                     if (process.ExitCode != 0)
                     {
-                        var error = process.StandardError.ReadToEnd();
-                        _logger.LogError($"Backup failed: {error}");
+                        _logger.LogError("Backup failed: {Error}", error);
                         return BadRequest(new { message = "Резервное копирование не удалось", error });
                     }
                 }
