@@ -64,21 +64,15 @@ namespace SoloCoachApi.Controllers
                 @"C:\Program Files (x86)\PostgreSQL\14\bin\pg_dump.exe",
             };
 
-            //foreach (var path in commonPaths)
-            //{
-            //    try
-            //    {
-            //        if (System.IO.File.Exists(path))
-            //        {
-            //            _logger.LogInformation($"Found pg_dump at: {path}");
-            //            return path;
-            //        }
-            //    }
-            //    catch
-            //    {
-            //        // ignore
-            //    }
-            //}
+            foreach (var path in commonPaths)
+            {
+                try
+                {
+                    if (path == "pg_dump" || System.IO.File.Exists(path))
+                        return path;
+                }
+                catch { }
+            }
 
             throw new FileNotFoundException("pg_dump не найдена. Убедитесь, что PostgreSQL установлен и добавлен в переменную PATH.");
         }
