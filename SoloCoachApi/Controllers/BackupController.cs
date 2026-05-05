@@ -108,7 +108,7 @@ namespace SoloCoachApi.Controllers
                 var psi = new ProcessStartInfo
                 {
                     FileName = pgDumpPath,
-                    Arguments = $"-h {host} -p {port} -U {username} -d {database} -F p -f \"{backupPath}\"",
+                    Arguments = $"-h {host} -p {port} -U {username} -d {database} -F p --clean --if-exists -f \"{backupPath}\"",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -193,6 +193,28 @@ namespace SoloCoachApi.Controllers
 
                 var psqlPath = FindPsql();
 
+                var env = new Dictionary<string, string>();
+                if (!string.IsNullOrEmpty(connBuilder.Password))
+                    env["PGPASSWORD"] = connBuilder.Password;
+
+                var dropPsi = new ProcessStartInfo
+                {
+                    FileName = psqlPath,
+                    Arguments = $"-h {connBuilder.Host} -p {connBuilder.Port} -U {connBuilder.Username} -d {connBuilder.Database} -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                };
+                foreach (var kv in env) dropPsi.Environment[kv.Key] = kv.Value;
+
+                using (var dropProcess = Process.Start(dropPsi))
+                {
+                    if (dropProcess == null)
+                        return BadRequest(new { message = "Не удалось запустить psql для очистки схемы" });
+                    dropProcess.WaitForExit(60000);
+                }
+
                 var psi = new ProcessStartInfo
                 {
                     FileName = psqlPath,
@@ -202,9 +224,7 @@ namespace SoloCoachApi.Controllers
                     RedirectStandardError = true,
                     CreateNoWindow = true,
                 };
-
-                if (!string.IsNullOrEmpty(connBuilder.Password))
-                    psi.Environment["PGPASSWORD"] = connBuilder.Password;
+                foreach (var kv in env) psi.Environment[kv.Key] = kv.Value;
 
                 using var process = Process.Start(psi);
                 if (process == null)
