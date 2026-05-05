@@ -14,10 +14,8 @@ const getApiBaseUrl = () => {
   
   // Fallback для локальной разработки
   if (import.meta.env.DEV) {
-    // Если API на том же хосте, но на другом порту (5219 для .NET)
-    const protocol = window.location.protocol
     const hostname = window.location.hostname
-    return `${protocol}//${hostname}:5219`
+    return `http://${hostname}:5219`
   }
   
   // Для production - API на том же хосте

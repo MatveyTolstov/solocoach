@@ -17,7 +17,7 @@ function AdminWorkspace({ token, roles, activeTab }) {
   const handleCreateBackup = async () => {
     setBackupLoading(true)
     try {
-      const response = await fetch('http://localhost:5219/api/Backup/create', {
+      const response = await fetch(`${API_BASE_URL}/api/Backup/create`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
       })
