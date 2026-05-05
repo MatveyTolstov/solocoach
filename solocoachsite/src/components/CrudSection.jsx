@@ -315,7 +315,6 @@ function CrudSection({ token, config }) {
             <label className="field">
               <span className="field-label">Запись</span>
               <select value={gifPanelId} onChange={(e) => setGifPanelId(e.target.value)}>
-                <option value="">— выберите —</option>
                 {items.map((item) => (
                   <option key={item[idField]} value={item[idField]}>
                     {item[config.tableColumns[0].key] ?? item[idField]}

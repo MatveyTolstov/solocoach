@@ -78,15 +78,15 @@ namespace SoloCoachApi.Repositories
         public async Task DeleteRoleAsync(int id)
         {
             if (id <= 0)
-            {
                 throw new ArgumentException("ID роли должен быть положительным числом", nameof(id));
-            }
 
             var role = await _context.Roles.FindAsync(id);
             if (role == null)
-            {
                 throw new KeyNotFoundException($"Роль с ID {id} не существует");
-            }
+
+            var usersWithRole = await _context.Users.CountAsync(u => u.RoleId == id);
+            if (usersWithRole > 0)
+                throw new InvalidOperationException($"Невозможно удалить роль '{role.RoleName}': она назначена {usersWithRole} пользователям");
 
             _context.Roles.Remove(role);
             await _context.SaveChangesAsync();

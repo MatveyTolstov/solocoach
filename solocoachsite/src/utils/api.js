@@ -27,7 +27,20 @@ export async function apiRequest(path, options = {}) {
   })
   if (!response.ok) {
     const text = await response.text()
-    throw new Error(text || `HTTP ${response.status}`)
+    let message = `HTTP ${response.status}`
+    try {
+      const json = JSON.parse(text)
+      if (json.errors) {
+        message = Object.values(json.errors).flat().join('; ')
+      } else if (json.message) {
+        message = json.message
+      } else if (json.title) {
+        message = json.title
+      }
+    } catch {
+      if (text) message = text
+    }
+    throw new Error(message)
   }
   if (response.status === 204) return null
   
