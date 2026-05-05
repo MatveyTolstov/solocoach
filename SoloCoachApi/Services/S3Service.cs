@@ -34,6 +34,7 @@ namespace SoloCoachApi.Services
                 Key = key,
                 InputStream = stream,
                 ContentType = contentType,
+                CannedACL = S3CannedACL.PublicRead,
                 UseChunkEncoding = false,
                 DisableDefaultChecksumValidation = true,
             };
