@@ -21,6 +21,9 @@ solocoachsite/dist/
 solocoachsite/.env.local
 solocoachsite/.env
 
+# ===== Secrets =====
+.env
+
 # ===== OS =====
 .DS_Store
 Thumbs.db
