@@ -7,7 +7,6 @@ services:
       POSTGRES_DB: SoloCoach
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: "1"
-    # ports больше не нужны снаружи, но можно оставить для дебага
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -18,7 +17,6 @@ services:
       dockerfile: Dockerfile
     container_name: solocoach_api
     restart: always
-    # порт 8081 больше не нужно открывать наружу
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=db;Database=SoloCoach;Username=postgres;Password=1;Port=5432
@@ -35,7 +33,6 @@ services:
       dockerfile: Dockerfile
     container_name: solocoach_site
     restart: always
-    # порт 3000 больше не нужно открывать наружу
     depends_on:
       - api
 

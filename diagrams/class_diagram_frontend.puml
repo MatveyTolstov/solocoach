@@ -1,0 +1,304 @@
+@startuml SoloCoachApi – Frontend Class Diagram
+
+skinparam defaultFontName Arial
+skinparam defaultFontSize 10
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 50
+
+skinparam class {
+    BackgroundColor      #E8F4FD
+    BorderColor          #2E86C1
+    HeaderBackgroundColor #2E86C1
+    HeaderFontColor      #FFFFFF
+    HeaderFontStyle      bold
+    AttributeFontColor   #1A252F
+}
+
+skinparam interface {
+    BackgroundColor      #EAF5EA
+    BorderColor          #1E8449
+    HeaderBackgroundColor #1E8449
+    HeaderFontColor      #FFFFFF
+    HeaderFontStyle      bold
+}
+
+skinparam arrowColor #555555
+skinparam arrowThickness 1.2
+
+' ============================================================
+'  UTILITY / SERVICE LAYER
+' ============================================================
+
+package "Utils" #FFF8E7 {
+
+    class AuthUtils <<utility>> {
+        + TOKEN_STORAGE_KEY : string
+        + readStoredToken() : string
+        + writeStoredToken(token: string) : void
+        + clearStoredToken() : void
+        + parseJwtSession(token: string) : AuthSession | null
+        + resolveRoleAccess(roleId: int, roleName: string) : AccessRoles
+    }
+
+    class ApiService <<utility>> {
+        + apiRequest(path: string, options: ApiOptions) : Promise<any>
+    }
+
+    class Helpers <<utility>> {
+        + ensureArray(value: any) : Array
+        + getValue(obj: any, key: string) : any
+        + toNullableNumber(value: any) : number | null
+        + formatDateTime(value: any) : string
+        + countBy(items: Array, keyFn: Function) : Record<string, number>
+    }
+}
+
+' ============================================================
+'  INTERFACES / DTOs
+' ============================================================
+
+package "Types" #F0FFF0 {
+
+    interface AuthSession {
+        + userId  : int
+        + login   : string
+        + roleId  : int
+    }
+
+    interface AccessRoles {
+        + admin   : boolean
+        + manager : boolean
+    }
+
+    interface ApiOptions {
+        + token  : string?
+        + method : string?
+        + query  : Record<string, any>?
+        + body   : object?
+    }
+
+    interface EntityConfig {
+        + key          : string
+        + title        : string
+        + apiPath      : string
+        + idField      : string
+        + tableColumns : ColumnDef[]
+        + formFields   : FieldDef[]
+    }
+
+    interface Toast {
+        + id      : string
+        + message : string
+        + type    : string
+    }
+
+    interface SnapshotData {
+        + usersTotal         : number
+        + usersWithMetrics   : number
+        + avgAge             : number
+        + goalsTotal         : number
+        + workoutsTotal      : number
+        + exercisesTotal     : number
+        + roleDistribution   : Record<string, number>
+        + ageBuckets         : AgeBucket[]
+        + genderDistribution : Record<string, number>
+        + activityDistribution : Record<string, number>
+    }
+}
+
+' ============================================================
+'  CONTEXT PROVIDERS
+' ============================================================
+
+package "Contexts" #F5EEF8 {
+
+    class ToastProvider <<context>> {
+        - toasts : Toast[]
+        + notify(message: string, type: string) : void
+        + dismiss(id: string) : void
+        + useToast() : Function
+    }
+}
+
+' ============================================================
+'  ROOT & AUTH COMPONENTS
+' ============================================================
+
+package "Root" #FDFEFE {
+
+    class App <<component>> {
+        - token     : string
+        - roles     : Role[]
+        - workspace : "manager" | "admin"
+        - activeTab : string
+        - session   : AuthSession
+        - access    : AccessRoles
+        + handleLogin(login: string, password: string) : Promise<void>
+        + handleLogout(message: string) : void
+        + render() : JSX
+    }
+
+    class LoginScreen <<component>> {
+        - login    : string
+        - password : string
+        + submit(e: Event) : void
+        + render() : JSX
+    }
+}
+
+' ============================================================
+'  WORKSPACE CONTAINERS
+' ============================================================
+
+package "Workspaces" #EDF2F7 {
+
+    class ManagerWorkspace <<component>> {
+        + token     : string
+        + activeTab : string
+        + render() : JSX
+    }
+
+    class AdminWorkspace <<component>> {
+        - selectedTable  : string
+        - backupLoading  : boolean
+        + token          : string
+        + roles          : Role[]
+        + activeTab      : string
+        + handleCreateBackup() : Promise<void>
+        + render() : JSX
+    }
+}
+
+' ============================================================
+'  FEATURE COMPONENTS
+' ============================================================
+
+package "Components" #E8F8F5 {
+
+    class AnalyticsPanel <<component>> {
+        - loading      : boolean
+        - snapshot     : SnapshotData
+        - refreshKey   : number
+        + token        : string
+        + render() : JSX
+    }
+
+    class CrudSection <<component>> {
+        - items        : object[]
+        - loading      : boolean
+        - saving       : boolean
+        - search       : string
+        - editing      : object | null
+        - createForm   : object
+        + token        : string
+        + config       : EntityConfig
+        + buildBody(form: object, fields: FieldDef[]) : object
+        + validate(form: object, fields: FieldDef[]) : boolean
+        + handleCreate() : Promise<void>
+        + handleUpdate() : Promise<void>
+        + handleDelete(item: object) : Promise<void>
+        + render() : JSX
+    }
+
+    class LogsPanel <<component>> {
+        - logs       : ApplicationLog[]
+        - loading    : boolean
+        - search     : string
+        + token      : string
+        + render() : JSX
+    }
+
+    class UserManagementSection <<component>> {
+        - users        : User[]
+        - loading      : boolean
+        - saving       : boolean
+        - search       : string
+        - editing      : User | null
+        - createForm   : object
+        + token        : string
+        + roles        : Role[]
+        + handleCreate() : Promise<void>
+        + handleUpdate() : Promise<void>
+        + handleDelete(user: User) : Promise<void>
+        + startEdit(user: User) : void
+        + cancelEdit() : void
+        + render() : JSX
+    }
+
+    class StatCard <<component>> {
+        + label : string
+        + value : any
+        + render() : JSX
+    }
+
+    class RoleDistributionChart <<component>> {
+        + data      : Record<string, number>
+        + roleNames : string[]
+        + render() : JSX
+    }
+
+    class AgeDistributionChart <<component>> {
+        + data : AgeBucket[]
+        + render() : JSX
+    }
+
+    class GenderDistributionChart <<component>> {
+        + data : Record<string, number>
+        + render() : JSX
+    }
+
+    class ActivityDistributionChart <<component>> {
+        + data : Record<string, number>
+        + render() : JSX
+    }
+}
+
+' ============================================================
+'  COMPONENT TREE RELATIONSHIPS
+' ============================================================
+
+App                    *--  LoginScreen               : shows if !token
+App                    *--  ManagerWorkspace          : workspace = 'manager'
+App                    *--  AdminWorkspace            : workspace = 'admin'
+App                    ..>  ToastProvider             : wrapped by
+App                    ..>  AuthUtils                 : uses
+App                    ..>  ApiService                : uses
+
+ManagerWorkspace       *--  AnalyticsPanel            : activeTab='analytics'
+ManagerWorkspace       *--  CrudSection               : resource tabs
+
+AdminWorkspace         *--  LogsPanel                 : activeTab='logs'
+AdminWorkspace         *--  UserManagementSection     : activeTab='users'
+AdminWorkspace         *--  CrudSection               : activeTab='database'
+
+AnalyticsPanel         *--  StatCard                  : "6"
+AnalyticsPanel         *--  RoleDistributionChart
+AnalyticsPanel         *--  AgeDistributionChart
+AnalyticsPanel         *--  GenderDistributionChart
+AnalyticsPanel         *--  ActivityDistributionChart
+AnalyticsPanel         ..>  ApiService                : uses
+
+CrudSection            ..>  ApiService                : uses
+CrudSection            ..>  EntityConfig              : config prop
+CrudSection            ..>  ToastProvider             : useToast()
+
+LogsPanel              ..>  ApiService                : uses
+UserManagementSection  ..>  ApiService                : uses
+UserManagementSection  ..>  ToastProvider             : useToast()
+
+LoginScreen            ..>  ApiService                : via onLogin prop
+
+' ============================================================
+'  TYPES USED BY COMPONENTS
+' ============================================================
+
+App            ..>  AuthSession
+App            ..>  AccessRoles
+ApiService     ..>  ApiOptions
+AuthUtils      ..>  AuthSession
+AuthUtils      ..>  AccessRoles
+ToastProvider  *--  Toast
+
+@enduml

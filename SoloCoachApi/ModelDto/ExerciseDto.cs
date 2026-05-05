@@ -19,5 +19,7 @@ namespace SoloCoachApi.ModelDto
         [Required]
         [Url]
         public required string PictureUrl { get; set; }
+
+        public string? VideoUrl { get; set; }
     }
 }

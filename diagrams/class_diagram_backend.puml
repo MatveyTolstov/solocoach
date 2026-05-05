@@ -1,0 +1,461 @@
+@startuml SoloCoachApi Backend
+
+top to bottom direction
+
+skinparam defaultFontName Arial
+skinparam defaultFontSize 10
+skinparam shadowing false
+skinparam nodesep 30
+skinparam ranksep 45
+
+skinparam class {
+    BackgroundColor      #E8F4FD
+    BorderColor          #2E86C1
+    HeaderBackgroundColor #2E86C1
+    HeaderFontColor      #FFFFFF
+    HeaderFontStyle      bold
+    AttributeFontColor   #1A252F
+}
+
+skinparam interface {
+    BackgroundColor      #EAF5EA
+    BorderColor          #1E8449
+    HeaderBackgroundColor #1E8449
+    HeaderFontColor      #FFFFFF
+    HeaderFontStyle      bold
+}
+
+skinparam package {
+    BorderColor   #AAAAAA
+    FontStyle     bold
+}
+
+skinparam arrowColor      #555555
+skinparam arrowThickness  1.2
+
+' ══════════════════════════════════════════════
+'  MODELS
+' ══════════════════════════════════════════════
+
+package "Models" #FFF8E7 {
+
+    together {
+        class User {
+            + IdUser        : int
+            + Name          : string
+            + Login         : string
+            + Password      : string
+            + Email         : string
+            + RoleId        : int
+            + MetricsUserId : int?
+        }
+
+        class Role {
+            + IdRole   : int
+            + RoleName : string
+        }
+
+        class MetricsUser {
+            + IdMetricsUser   : int
+            + Height          : float
+            + Weight          : float
+            + Age             : int
+            + Gender          : string
+            + ExperienceLevel : string
+            + ActivityLevel   : string
+            + GoalId          : int?
+        }
+
+        class Goal {
+            + IdGoal       : int
+            + TypeGoal     : string
+            + TargetWeight : float?
+            + DateStart    : DateTime
+            + DateEnd      : DateTime?
+            + Status       : string
+        }
+    }
+
+    together {
+        class Exercise {
+            + IdExercise  : int
+            + Name        : string
+            + Description : string
+            + Complexity  : string
+            + PictureUrl  : string
+        }
+
+        class GroupsMuscle {
+            + IdGroupsMuscle : int
+            + Name           : string
+        }
+
+        class ExerciseGroupsMuscle {
+            + IdExerciseGroupsMuscle : int
+            + ExerciseId             : int
+            + GroupsMusclesId        : int
+        }
+    }
+
+    together {
+        class Workout {
+            + IdWorkout   : int
+            + Name        : string
+            + Description : string
+            + Duration    : int
+            + Complexity  : string
+            + TypeWorkout : string
+        }
+
+        class TrainingExercise {
+            + IdTrainingExercise : int
+            + WorkoutId          : int
+            + ExerciseId         : int
+            + ExecutionOrder     : int
+            + Repetitions        : int
+            + Sets               : int
+            + RestTime           : int
+        }
+    }
+
+    together {
+        class WorkoutUser {
+            + IdWorkoutUser : int
+            + UserId        : int
+            + WorkoutId     : int
+            + Duration      : int
+            + Date          : DateTime
+            + Status        : string
+        }
+
+        class WorkoutUserLog {
+            + IdWorkoutUserLog : int
+            + WorkoutUserId    : int
+            + Repetitions      : int
+            + Sets             : int
+            + Weight           : float
+            + Status           : string
+        }
+
+        class WorkoutCalendar {
+            + IdWorkoutCalendar : int
+            + UserId            : int
+            + WorkoutId         : int
+            + Status            : string
+            + Date              : DateTime
+        }
+
+        class PlanWorkout {
+            + IdPlanWorkout : int
+            + UserId        : int
+            + WorkoutId     : int
+            + Status        : string
+            + Source        : string
+        }
+    }
+
+    together {
+        class ApplicationLog {
+            + IdApplicationLog : int
+            + Action           : string
+            + EntityType       : string
+            + EntityId         : int?
+            + UserId           : int?
+            + CreatedAt        : DateTime
+            + Status           : string
+            + ErrorMessage     : string?
+        }
+
+        class PasswordResetToken {
+            + IdPasswordResetToken : int
+            + UserId    : int
+            + TokenHash : string
+            + ExpiresAt : DateTime
+            + IsUsed    : bool
+        }
+    }
+}
+
+' ══════════════════════════════════════════════
+'  DATABASE CONTEXT
+' ══════════════════════════════════════════════
+
+package "DataBase" #F5EEF8 {
+
+    class ApplicationContext {
+        + Users               : DbSet<User>
+        + Roles               : DbSet<Role>
+        + MetricsUsers        : DbSet<MetricsUser>
+        + Goals               : DbSet<Goal>
+        + Exercises           : DbSet<Exercise>
+        + GroupsMuscles       : DbSet<GroupsMuscle>
+        + ExercisesGroups     : DbSet<ExerciseGroupsMuscle>
+        + Workouts            : DbSet<Workout>
+        + TrainingExercises   : DbSet<TrainingExercise>
+        + WorkoutUser         : DbSet<WorkoutUser>
+        + WorkoutUserLogs     : DbSet<WorkoutUserLog>
+        + WorkoutCalendars    : DbSet<WorkoutCalendar>
+        + PlanWorkouts        : DbSet<PlanWorkout>
+        + ApplicationLogs     : DbSet<ApplicationLog>
+        + PasswordResetTokens : DbSet<PasswordResetToken>
+    }
+}
+
+' ══════════════════════════════════════════════
+'  INTERFACES
+' ══════════════════════════════════════════════
+
+package "Interfaces" #F0FFF0 {
+
+    together {
+        interface IAuthService {
+            + LoginAsync(login: string, password: string) : Task<string>
+            + RegisterAsync(dto: RegisterDto) : Task<string>
+            + ForgotPasswordAsync(email: string) : Task
+            + ResetPasswordAsync(dto: ResetPasswordDto) : Task
+        }
+
+        interface IEmailService {
+            + SendEmailAsync(toEmail: string, subject: string, body: string) : Task
+        }
+
+        interface ILoggingService {
+            + LogActionAsync(userId: int?, action: string, entityType: string,\n  entityId: int?, details: object?, status: string, errorMessage: string?) : Task
+        }
+    }
+
+    together {
+        interface IUserRepository {
+            + GetByIdAsync(id: int) : Task<User>
+            + GetAllAsync() : Task<List<User>>
+            + CreateAsync(user: User) : Task<User>
+            + UpdateAsync(user: User) : Task<User>
+            + DeleteAsync(id: int) : Task
+        }
+
+        interface IWorkoutRepository {
+            + GetByIdAsync(id: int) : Task<Workout>
+            + GetAllAsync() : Task<List<Workout>>
+            + GetPagedAsync(query: WorkoutListQuery) : Task<PagedResultDto<Workout>>
+            + CreateAsync(w: Workout) : Task<Workout>
+            + UpdateAsync(w: Workout) : Task<Workout>
+            + DeleteAsync(id: int) : Task
+        }
+
+        interface IExerciseRepository {
+            + GetByIdAsync(id: int) : Task<Exercise>
+            + GetAllAsync() : Task<List<Exercise>>
+            + GetPagedAsync(query: ExerciseListQuery) : Task<PagedResultDto<Exercise>>
+            + CreateAsync(e: Exercise) : Task<Exercise>
+            + UpdateAsync(e: Exercise) : Task<Exercise>
+            + DeleteAsync(id: int) : Task
+        }
+
+        interface IGoalRepository {
+            + GetByIdAsync(id: int) : Task<Goal>
+            + GetAllAsync() : Task<List<Goal>>
+            + CreateAsync(g: Goal) : Task<Goal>
+            + UpdateAsync(g: Goal) : Task<Goal>
+            + DeleteAsync(id: int) : Task
+        }
+    }
+}
+
+' ══════════════════════════════════════════════
+'  REPOSITORIES
+' ══════════════════════════════════════════════
+
+package "Repositories" #FEF9E7 {
+
+    together {
+        class UserRepository {
+            - _context : ApplicationContext
+            + GetByIdAsync(id: int) : Task<User>
+            + GetAllAsync() : Task<List<User>>
+            + CreateAsync(user: User) : Task<User>
+            + UpdateAsync(user: User) : Task<User>
+            + DeleteAsync(id: int) : Task
+        }
+
+        class WorkoutRepository {
+            - _context : ApplicationContext
+            + GetByIdAsync(id: int) : Task<Workout>
+            + GetAllAsync() : Task<List<Workout>>
+            + GetPagedAsync(query: WorkoutListQuery) : Task<PagedResultDto<Workout>>
+            + CreateAsync(w: Workout) : Task<Workout>
+            + UpdateAsync(w: Workout) : Task<Workout>
+            + DeleteAsync(id: int) : Task
+        }
+
+        class ExerciseRepository {
+            - _context : ApplicationContext
+            + GetByIdAsync(id: int) : Task<Exercise>
+            + GetAllAsync() : Task<List<Exercise>>
+            + GetPagedAsync(query: ExerciseListQuery) : Task<PagedResultDto<Exercise>>
+            + CreateAsync(e: Exercise) : Task<Exercise>
+            + UpdateAsync(e: Exercise) : Task<Exercise>
+            + DeleteAsync(id: int) : Task
+        }
+
+        class GoalRepository {
+            - _context : ApplicationContext
+            + GetByIdAsync(id: int) : Task<Goal>
+            + GetAllAsync() : Task<List<Goal>>
+            + CreateAsync(g: Goal) : Task<Goal>
+            + UpdateAsync(g: Goal) : Task<Goal>
+            + DeleteAsync(id: int) : Task
+        }
+    }
+}
+
+' ══════════════════════════════════════════════
+'  SERVICES
+' ══════════════════════════════════════════════
+
+package "Services" #EDF2F7 {
+
+    together {
+        class AuthService {
+            - _userRepo     : IUserRepository
+            - _jwtService   : JwtService
+            - _emailService : IEmailService
+            + LoginAsync(login: string, password: string) : Task<string>
+            + RegisterAsync(dto: RegisterDto) : Task<string>
+            + ForgotPasswordAsync(email: string) : Task
+            + ResetPasswordAsync(dto: ResetPasswordDto) : Task
+        }
+
+        class JwtService {
+            + GenerateToken(user: User) : string
+            + ValidateToken(token: string) : ClaimsPrincipal?
+        }
+
+        class SmtpEmailService {
+            + SendEmailAsync(toEmail: string, subject: string, body: string) : Task
+        }
+    }
+
+    together {
+        class UserService {
+            - _userRepo     : IUserRepository
+            - _emailService : IEmailService
+            + GetByIdAsync(id: int) : Task<UserDto>
+            + GetAllAsync() : Task<List<UserDto>>
+            + CreateAsync(dto: UserDto) : Task<UserDto>
+            + UpdateAsync(dto: UserDto) : Task<UserDto>
+            + DeleteAsync(id: int) : Task
+            + SendEmailCode(userId: int, dto: RequestEmailChangeDto) : Task
+            + ConfirmEmailChange(userId: int, dto: ConfirmEmailChangeDto) : Task
+        }
+
+        class WorkoutService {
+            - _workoutRepo : IWorkoutRepository
+            + GetByIdAsync(id: int) : Task<WorkoutDto>
+            + GetAllAsync() : Task<List<WorkoutDto>>
+            + GetPagedAsync(query: WorkoutListQuery) : Task<PagedResultDto<WorkoutDto>>
+            + CreateAsync(dto: WorkoutDto) : Task<WorkoutDto>
+            + UpdateAsync(dto: WorkoutDto) : Task<WorkoutDto>
+            + DeleteAsync(id: int) : Task
+        }
+
+        class ExerciseService {
+            - _exerciseRepo : IExerciseRepository
+            + GetByIdAsync(id: int) : Task<ExerciseDto>
+            + GetAllAsync() : Task<List<ExerciseDto>>
+            + GetPagedAsync(query: ExerciseListQuery) : Task<PagedResultDto<ExerciseDto>>
+            + CreateAsync(dto: ExerciseDto) : Task<ExerciseDto>
+            + UpdateAsync(dto: ExerciseDto) : Task<ExerciseDto>
+            + DeleteAsync(id: int) : Task
+        }
+    }
+
+    together {
+        class WorkoutSessionService {
+            - _context        : ApplicationContext
+            - _loggingService : ILoggingService
+            + CompleteAsync(userId: int, dto: CompleteWorkoutSessionDto) : Task<CompleteWorkoutSessionResultDto>
+        }
+
+        class AiService {
+            - _context : ApplicationContext
+            + GetRecommendationsAsync(userId: int) : Task<AiRecommendationResponseDto>
+        }
+
+        class ApplicationLogService {
+            - _context : ApplicationContext
+            + LogActionAsync(...) : Task
+            + GetAllLogsAsync() : Task<List<ApplicationLog>>
+        }
+
+        class ProfileService {
+            - _context : ApplicationContext
+            + GetProfileAsync(userId: int) : Task<UserProfileDto>
+            + UpdateProfileAsync(userId: int, dto: UpdateUserProfileDto) : Task<UserProfileDto>
+        }
+    }
+}
+
+' ══════════════════════════════════════════════
+'  INTERFACE IMPLEMENTATIONS
+' ══════════════════════════════════════════════
+
+AuthService           ..|>  IAuthService
+SmtpEmailService      ..|>  IEmailService
+ApplicationLogService ..|>  ILoggingService
+UserRepository        ..|>  IUserRepository
+WorkoutRepository     ..|>  IWorkoutRepository
+ExerciseRepository    ..|>  IExerciseRepository
+GoalRepository        ..|>  IGoalRepository
+
+' ══════════════════════════════════════════════
+'  SERVICES  →  REPOSITORIES (via interface)
+' ══════════════════════════════════════════════
+
+AuthService     ..>  IUserRepository
+UserService     ..>  IUserRepository
+WorkoutService  ..>  IWorkoutRepository
+ExerciseService ..>  IExerciseRepository
+
+' ══════════════════════════════════════════════
+'  SERVICES  →  CONTEXT  (сложные операции)
+' ══════════════════════════════════════════════
+
+WorkoutSessionService ..>  ApplicationContext
+AiService             ..>  ApplicationContext
+ApplicationLogService ..>  ApplicationContext
+ProfileService        ..>  ApplicationContext
+
+' ══════════════════════════════════════════════
+'  SERVICE → SERVICE DEPENDENCIES
+' ══════════════════════════════════════════════
+
+AuthService           ..>  JwtService
+AuthService           ..>  IEmailService
+UserService           ..>  IEmailService
+WorkoutSessionService ..>  ILoggingService
+
+' ══════════════════════════════════════════════
+'  REPOSITORIES  →  CONTEXT
+' ══════════════════════════════════════════════
+
+UserRepository     ..>  ApplicationContext
+WorkoutRepository  ..>  ApplicationContext
+ExerciseRepository ..>  ApplicationContext
+GoalRepository     ..>  ApplicationContext
+
+' ══════════════════════════════════════════════
+'  MODEL RELATIONSHIPS (ключевые)
+' ══════════════════════════════════════════════
+
+User         "1" --  "1"    Role
+User         "1" --  "0..1" MetricsUser
+MetricsUser  "1" --  "0..1" Goal
+Workout      "1" --  "0..*" TrainingExercise
+Exercise     "1" --  "0..*" TrainingExercise
+Exercise     "1" --  "0..*" ExerciseGroupsMuscle
+GroupsMuscle "1" --  "0..*" ExerciseGroupsMuscle
+User         "1" --  "0..*" WorkoutUser
+Workout      "1" --  "0..*" WorkoutUser
+WorkoutUser  "1" --  "0..*" WorkoutUserLog
+
+@enduml

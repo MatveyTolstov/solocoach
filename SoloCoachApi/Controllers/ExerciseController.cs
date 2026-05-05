@@ -143,6 +143,44 @@ namespace SoloCoachApi.Controllers
                 throw;
             }
         }
+
+        [HttpPost("{id:int}/video")]
+        [RequestSizeLimit(200 * 1024 * 1024)]
+        public async Task<ActionResult<ExerciseDto>> UploadVideo(int id, IFormFile file)
+        {
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (extension != ".gif")
+                return BadRequest("Неверный формат файла. Допустим только GIF.");
+
+            if (file == null || file.Length == 0)
+                return BadRequest("Файл не передан.");
+
+            var updated = await _exerciseService.UploadVideoAsync(id, file);
+            var userId = this.User.GetUserId();
+            await _loggingService.LogActionAsync(
+                userId: userId,
+                action: "UPLOAD_EXERCISE_VIDEO",
+                entityType: "Exercise",
+                entityId: id,
+                details: new { fileName = file.FileName, size = file.Length }
+            );
+            return Ok(updated);
+        }
+
+        [HttpDelete("{id:int}/video")]
+        public async Task<ActionResult<ExerciseDto>> DeleteVideo(int id)
+        {
+            var updated = await _exerciseService.DeleteVideoAsync(id);
+            var userId = this.User.GetUserId();
+            await _loggingService.LogActionAsync(
+                userId: userId,
+                action: "DELETE_EXERCISE_VIDEO",
+                entityType: "Exercise",
+                entityId: id,
+                details: new { deletedVideoForExerciseId = id }
+            );
+            return Ok(updated);
+        }
     }
 }
 

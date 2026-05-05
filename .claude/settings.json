@@ -3,6 +3,9 @@
     "additionalDirectories": [
       "d:\\GovnoCodeC\\SoloCoachMobile\\solocouchmobile\\lib\\presentation\\pages",
       "d:\\GovnoCodeC\\SoloCoachMobile\\solocouchmobile\\lib"
+    ],
+    "allow": [
+      "Read(//d/GovnoCodeC/SoloCoachMobile/solocouchmobile/**)"
     ]
   }
 }

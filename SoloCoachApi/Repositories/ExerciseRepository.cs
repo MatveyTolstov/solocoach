@@ -130,5 +130,24 @@ namespace SoloCoachApi.Repositories
             _context.Exercises.Remove(exercise);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<ExerciseDto> UpdateVideoUrlAsync(int id, string? videoUrl)
+        {
+            if (id <= 0)
+            {
+                throw new ArgumentException("ID упражнения должен быть положительным числом", nameof(id));
+            }
+
+            var exercise = await _context.Exercises.FindAsync(id);
+            if (exercise == null)
+            {
+                throw new KeyNotFoundException($"Упражнение с ID {id} не существует");
+            }
+
+            exercise.VideoUrl = videoUrl;
+            await _context.SaveChangesAsync();
+
+            return _exerciseMapper.ToDto(exercise);
+        }
     }
 }

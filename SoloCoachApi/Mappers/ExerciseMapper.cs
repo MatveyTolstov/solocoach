@@ -14,6 +14,7 @@ namespace SoloCoachApi.Mappers
                 Description = dto.Description,
                 Complexity = dto.Complexity,
                 PictureUrl = dto.PictureUrl,
+                VideoUrl = dto.VideoUrl,
             };
         }
 
@@ -25,7 +26,8 @@ namespace SoloCoachApi.Mappers
                 Name = exercise.Name,
                 Description = exercise.Description,
                 Complexity = exercise.Complexity,
-                PictureUrl = exercise.PictureUrl
+                PictureUrl = exercise.PictureUrl,
+                VideoUrl = exercise.VideoUrl,
             };
         }
     }

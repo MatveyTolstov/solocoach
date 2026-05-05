@@ -10,6 +10,7 @@ namespace SoloCoachApi.Repositories
         Task<ExerciseDto> CreateExerciseAsync(ExerciseDto dto);
         Task<ExerciseDto> UpdateExerciseAsync(ExerciseDto dto);
         Task DeleteExerciseAsync(int id);
+        Task<ExerciseDto> UpdateVideoUrlAsync(int id, string? videoUrl);
     }
 }
 

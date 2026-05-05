@@ -21,5 +21,8 @@ namespace SoloCoachApi.Models
 
         [Column("picture_url")]
         public required string PictureUrl { get; set; }
+
+        [Column("video_url")]
+        public string? VideoUrl { get; set; }
     }
 }

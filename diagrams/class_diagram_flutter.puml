@@ -1,0 +1,801 @@
+@startuml SoloCoachMobile – Flutter Class Diagram
+
+top to bottom direction
+
+skinparam defaultFontName Arial
+skinparam defaultFontSize 10
+skinparam shadowing false
+skinparam nodesep 30
+skinparam ranksep 45
+
+skinparam class {
+    BackgroundColor      #E8F4FD
+    BorderColor          #2E86C1
+    HeaderBackgroundColor #2E86C1
+    HeaderFontColor      #FFFFFF
+    HeaderFontStyle      bold
+    AttributeFontColor   #1A252F
+}
+
+skinparam interface {
+    BackgroundColor      #EAF5EA
+    BorderColor          #1E8449
+    HeaderBackgroundColor #1E8449
+    HeaderFontColor      #FFFFFF
+    HeaderFontStyle      bold
+}
+
+skinparam abstract {
+    BackgroundColor      #FEF9E7
+    BorderColor          #D4AC0D
+    HeaderBackgroundColor #D4AC0D
+    HeaderFontColor      #FFFFFF
+    HeaderFontStyle      bold
+}
+
+skinparam package {
+    BorderColor  #AAAAAA
+    FontStyle    bold
+}
+
+skinparam arrowColor     #555555
+skinparam arrowThickness 1.2
+
+' ══════════════════════════════════════════════
+'  CORE
+' ══════════════════════════════════════════════
+
+package "Core" #F8F9FA {
+
+    together {
+        abstract class Failure {
+            + message : String?
+        }
+
+        class ServerFailure {
+            + message : String?
+        }
+
+        class NetworkFailure {
+            + message : String?
+        }
+
+        class AuthFailure {
+            + message : String?
+        }
+    }
+
+    together {
+        class DioClient {
+            - _prefs            : SharedPreferences
+            - _onUnauthorized?  : VoidCallback
+            - _dio              : Dio
+            + dio               : Dio
+            + saveToken(prefs, token) : Future<void>
+            + clearToken(prefs)       : Future<void>
+            + readToken(prefs)        : String?
+            + mapDioError(e)          : Failure
+        }
+
+        class ApiConfig {
+            + baseUrl : String
+        }
+    }
+}
+
+ServerFailure  --|>  Failure
+NetworkFailure --|>  Failure
+AuthFailure    --|>  Failure
+
+' ══════════════════════════════════════════════
+'  DOMAIN — ENTITIES
+' ══════════════════════════════════════════════
+
+package "Domain / Entities" #FFF8E7 {
+
+    together {
+        class ExerciseEntity {
+            + idExercise  : int
+            + name        : String
+            + description : String?
+            + complexity  : String?
+            + pictureUrl  : String
+        }
+
+        class WorkoutTrainingExerciseEntity {
+            + idTrainingExercise : int
+            + executionOrder     : int
+            + repetitions        : int
+            + sets               : int
+            + restTime           : int
+            + exercise           : ExerciseEntity
+        }
+
+        class WorkoutEntity {
+            + idWorkout          : int
+            + name               : String
+            + description        : String
+            + duration           : int
+            + complexity         : String
+            + typeWorkout        : String
+            + trainingExercises  : List<WorkoutTrainingExerciseEntity>
+        }
+    }
+
+    together {
+        class GoalEntity {
+            + idGoal       : int
+            + typeGoal     : String
+            + targetWeight : double
+            + dateStart    : DateTime
+            + dateEnd      : DateTime
+            + status       : String
+        }
+
+        class MetricsUserEntity {
+            + idMetricsUser   : int
+            + height          : double
+            + weight          : double
+            + age             : int
+            + gender          : String
+            + experienceLevel : String?
+            + activityLevel   : String?
+            + goalId          : int
+        }
+
+        class ProfileEntity {
+            + idUser         : int
+            + name           : String
+            + login          : String
+            + email          : String
+            + metricsUserId  : int?
+            + metrics        : MetricsUserEntity?
+            + currentGoal    : GoalEntity?
+        }
+    }
+
+    together {
+        class WorkoutCalendarEntity {
+            + idWorkoutCalendar : int
+            + userId            : int
+            + workoutId         : int
+            + date              : DateTime
+            + status            : String?
+        }
+
+        class AiRecommendationResponseEntity {
+            + recommendations : List<AiWorkoutRecommendationEntity>
+            + advice          : String
+            + disclaimer      : String
+        }
+
+        class AiWorkoutRecommendationEntity {
+            + workout : WorkoutEntity
+            + reason  : String
+        }
+
+        class PagedWorkoutsResult {
+            + items      : List<WorkoutEntity>
+            + totalCount : int
+            + page       : int
+            + pageSize   : int
+            + hasMore    : bool
+        }
+
+        class PagedExercisesResult {
+            + items      : List<ExerciseEntity>
+            + totalCount : int
+            + page       : int
+            + pageSize   : int
+            + hasMore    : bool
+        }
+    }
+}
+
+WorkoutEntity              *--  "0..*"  WorkoutTrainingExerciseEntity
+WorkoutTrainingExerciseEntity *--  "1"  ExerciseEntity
+ProfileEntity              *--  "0..1"  MetricsUserEntity
+ProfileEntity              *--  "0..1"  GoalEntity
+AiRecommendationResponseEntity *--  "0..*"  AiWorkoutRecommendationEntity
+AiWorkoutRecommendationEntity  *--  "1"     WorkoutEntity
+PagedWorkoutsResult        *--  "0..*"  WorkoutEntity
+PagedExercisesResult       *--  "0..*"  ExerciseEntity
+
+' ══════════════════════════════════════════════
+'  DOMAIN — REPOSITORIES (abstract)
+' ══════════════════════════════════════════════
+
+package "Domain / Repositories" #F0FFF0 {
+
+    together {
+        abstract class AuthRepository {
+            + login(login, password)        : Future<Either<Failure, Unit>>
+            + register(name, login, pw, email) : Future<Either<Failure, Unit>>
+            + forgotPassword(email)         : Future<Either<Failure, Unit>>
+            + resetPassword(email, code, pw): Future<Either<Failure, Unit>>
+            + logout()                      : Future<void>
+            + hasSession()                  : Future<bool>
+            + getToken()                    : Future<String?>
+        }
+
+        abstract class WorkoutRepository {
+            + getAll()   : Future<Either<Failure, List<WorkoutEntity>>>
+            + getPage(page, pageSize, search, type, complexity) : Future<Either<Failure, PagedWorkoutsResult>>
+            + getById(id): Future<Either<Failure, WorkoutEntity>>
+        }
+
+        abstract class ExerciseRepository {
+            + getAll()   : Future<Either<Failure, List<ExerciseEntity>>>
+            + getPage(page, pageSize, search, complexity) : Future<Either<Failure, PagedExercisesResult>>
+            + getById(id): Future<Either<Failure, ExerciseEntity>>
+        }
+    }
+
+    together {
+        abstract class ProfileRepository {
+            + getProfile()                      : Future<Either<Failure, ProfileEntity>>
+            + getGoals()                        : Future<Either<Failure, List<GoalEntity>>>
+            + updateProfile(UpdateProfileParams): Future<Either<Failure, ProfileEntity>>
+        }
+
+        abstract class WorkoutCalendarRepository {
+            + getMine(from?, to?) : Future<Either<Failure, List<WorkoutCalendarEntity>>>
+            + create(workoutId, date, status?) : Future<Either<Failure, WorkoutCalendarEntity>>
+            + update(entity)      : Future<Either<Failure, WorkoutCalendarEntity>>
+            + delete(id)          : Future<Either<Failure, void>>
+        }
+
+        abstract class WorkoutSessionRepository {
+            + complete(workoutId, duration, date, status?, calendarId?, logs) : Future<Either<Failure, CompletedWorkoutSessionResult>>
+        }
+
+        abstract class AiRepository {
+            + getRecommendations() : Future<AiRecommendationResponseEntity>
+        }
+    }
+}
+
+' ══════════════════════════════════════════════
+'  DOMAIN — USE CASES
+' ══════════════════════════════════════════════
+
+package "Domain / UseCases" #EAF5EA {
+
+    together {
+        class LoginUseCase {
+            - _repo : AuthRepository
+            + call(login, password) : Future<Either<Failure, Unit>>
+        }
+
+        class RegisterUseCase {
+            - _repo : AuthRepository
+            + call(name, login, pw, email) : Future<Either<Failure, Unit>>
+        }
+
+        class ForgotPasswordUseCase {
+            - _repo : AuthRepository
+            + call(email) : Future<Either<Failure, Unit>>
+        }
+
+        class ResetPasswordUseCase {
+            - _repo : AuthRepository
+            + call(email, code, newPw) : Future<Either<Failure, Unit>>
+        }
+    }
+
+    together {
+        class GetWorkoutsPageUseCase {
+            - _repo : WorkoutRepository
+            + call(page, pageSize?, search?, type?, complexity?) : Future<Either<Failure, PagedWorkoutsResult>>
+        }
+
+        class GetWorkoutByIdUseCase {
+            - _repo : WorkoutRepository
+            + call(id) : Future<Either<Failure, WorkoutEntity>>
+        }
+
+        class GetExercisesPageUseCase {
+            - _repo : ExerciseRepository
+            + call(page, pageSize?, search?, complexity?) : Future<Either<Failure, PagedExercisesResult>>
+        }
+
+        class GetExerciseByIdUseCase {
+            - _repo : ExerciseRepository
+            + call(id) : Future<Either<Failure, ExerciseEntity>>
+        }
+    }
+
+    together {
+        class GetProfileUseCase {
+            - _repo : ProfileRepository
+            + call() : Future<Either<Failure, ProfileEntity>>
+        }
+
+        class UpdateProfileUseCase {
+            - _repo : ProfileRepository
+            + call(UpdateProfileParams) : Future<Either<Failure, ProfileEntity>>
+        }
+
+        class GetGoalsUseCase {
+            - _repo : ProfileRepository
+            + call() : Future<Either<Failure, List<GoalEntity>>>
+        }
+
+        class CompleteWorkoutSessionUseCase {
+            - _repo : WorkoutSessionRepository
+            + call(workoutId, duration, date, status?, calendarId?, logs) : Future<Either<Failure, CompletedWorkoutSessionResult>>
+        }
+
+        class GetAiRecommendationsUseCase {
+            - _repo : AiRepository
+            + call() : Future<AiRecommendationResponseEntity>
+        }
+    }
+}
+
+LoginUseCase               ..>  AuthRepository
+RegisterUseCase            ..>  AuthRepository
+ForgotPasswordUseCase      ..>  AuthRepository
+ResetPasswordUseCase       ..>  AuthRepository
+GetWorkoutsPageUseCase     ..>  WorkoutRepository
+GetWorkoutByIdUseCase      ..>  WorkoutRepository
+GetExercisesPageUseCase    ..>  ExerciseRepository
+GetExerciseByIdUseCase     ..>  ExerciseRepository
+GetProfileUseCase          ..>  ProfileRepository
+UpdateProfileUseCase       ..>  ProfileRepository
+GetGoalsUseCase            ..>  ProfileRepository
+CompleteWorkoutSessionUseCase ..> WorkoutSessionRepository
+GetAiRecommendationsUseCase ..>  AiRepository
+
+' ══════════════════════════════════════════════
+'  DATA — MODELS
+' ══════════════════════════════════════════════
+
+package "Data / Models" #FDF2E9 {
+
+    together {
+        class ExerciseModel {
+            + idExercise  : int
+            + name        : String
+            + description : String?
+            + complexity  : String?
+            + pictureUrl  : String
+            + fromJson(json) : ExerciseModel
+            + toEntity()     : ExerciseEntity
+        }
+
+        class WorkoutModel {
+            + idWorkout         : int
+            + name              : String
+            + duration          : int
+            + complexity        : String
+            + typeWorkout       : String
+            + trainingExercises : List<WorkoutTrainingExerciseModel>
+            + fromJson(json) : WorkoutModel
+            + toEntity()     : WorkoutEntity
+        }
+
+        class WorkoutCalendarModel {
+            + idWorkoutCalendar : int
+            + userId            : int
+            + workoutId         : int
+            + date              : DateTime
+            + status            : String?
+            + fromJson(json) : WorkoutCalendarModel
+            + toJson()       : Map<String, dynamic>
+            + toEntity()     : WorkoutCalendarEntity
+        }
+    }
+
+    together {
+        class ProfileModel {
+            + idUser        : int
+            + name          : String
+            + login         : String
+            + email         : String
+            + metrics       : MetricsUserModel?
+            + currentGoal   : GoalModel?
+            + fromJson(json) : ProfileModel
+            + toEntity()     : ProfileEntity
+        }
+
+        class AiRecommendationResponseModel {
+            + recommendations : List<AiWorkoutRecommendationModel>
+            + advice          : String
+            + disclaimer      : String
+            + fromJson(json) : AiRecommendationResponseModel
+        }
+
+        class PagedWorkoutsResultModel {
+            + items      : List<WorkoutModel>
+            + totalCount : int
+            + page       : int
+            + pageSize   : int
+            + fromJson(json) : PagedWorkoutsResultModel
+        }
+    }
+}
+
+' ══════════════════════════════════════════════
+'  DATA — REMOTE DATA SOURCES
+' ══════════════════════════════════════════════
+
+package "Data / DataSources" #FAF0FF {
+
+    together {
+        abstract class AuthRemoteDataSource {
+            + login(login, password)               : Future<String>
+            + register(name, login, pw, email)     : Future<String>
+            + forgotPassword(email)                : Future<void>
+            + resetPassword(email, code, newPw)    : Future<void>
+        }
+
+        class AuthRemoteDataSourceImpl {
+            - _dio : Dio
+            + login(login, password)               : Future<String>
+            + register(name, login, pw, email)     : Future<String>
+            + forgotPassword(email)                : Future<void>
+            + resetPassword(email, code, newPw)    : Future<void>
+        }
+    }
+
+    together {
+        abstract class WorkoutRemoteDataSource {
+            + getAll()                    : Future<List<WorkoutModel>>
+            + getPaged(page, ...)         : Future<PagedWorkoutsResultModel>
+            + getById(id)                 : Future<WorkoutModel>
+        }
+
+        class WorkoutRemoteDataSourceImpl {
+            - _dio : Dio
+            + getAll()            : Future<List<WorkoutModel>>
+            + getPaged(page, ...) : Future<PagedWorkoutsResultModel>
+            + getById(id)         : Future<WorkoutModel>
+        }
+
+        abstract class ExerciseRemoteDataSource {
+            + getAll()            : Future<List<ExerciseModel>>
+            + getPaged(page, ...) : Future<PagedExercisesResultModel>
+            + getById(id)         : Future<ExerciseModel>
+        }
+
+        class ExerciseRemoteDataSourceImpl {
+            - _dio : Dio
+            + getAll()            : Future<List<ExerciseModel>>
+            + getPaged(page, ...) : Future<PagedExercisesResultModel>
+            + getById(id)         : Future<ExerciseModel>
+        }
+    }
+
+    together {
+        abstract class ProfileRemoteDataSource {
+            + getMe()                           : Future<ProfileModel>
+            + updateMe(Map<String, dynamic>)    : Future<ProfileModel>
+            + getGoals()                        : Future<List<GoalModel>>
+        }
+
+        class ProfileRemoteDataSourceImpl {
+            - _dio : Dio
+            + getMe()                         : Future<ProfileModel>
+            + updateMe(Map<String, dynamic>)  : Future<ProfileModel>
+            + getGoals()                      : Future<List<GoalModel>>
+        }
+
+        abstract class WorkoutCalendarRemoteDataSource {
+            + getMine(from?, to?) : Future<List<WorkoutCalendarModel>>
+            + create(model)       : Future<WorkoutCalendarModel>
+            + update(model)       : Future<WorkoutCalendarModel>
+            + delete(id)          : Future<void>
+        }
+
+        class WorkoutCalendarRemoteDataSourceImpl {
+            - _dio : Dio
+            + getMine(from?, to?) : Future<List<WorkoutCalendarModel>>
+            + create(model)       : Future<WorkoutCalendarModel>
+            + update(model)       : Future<WorkoutCalendarModel>
+            + delete(id)          : Future<void>
+        }
+
+        abstract class AiRemoteDataSource {
+            + getRecommendations() : Future<AiRecommendationResponseModel>
+        }
+
+        class AiRemoteDataSourceImpl {
+            - _dio : Dio
+            + getRecommendations() : Future<AiRecommendationResponseModel>
+        }
+    }
+}
+
+AuthRemoteDataSourceImpl          ..|>  AuthRemoteDataSource
+WorkoutRemoteDataSourceImpl       ..|>  WorkoutRemoteDataSource
+ExerciseRemoteDataSourceImpl      ..|>  ExerciseRemoteDataSource
+ProfileRemoteDataSourceImpl       ..|>  ProfileRemoteDataSource
+WorkoutCalendarRemoteDataSourceImpl ..|> WorkoutCalendarRemoteDataSource
+AiRemoteDataSourceImpl            ..|>  AiRemoteDataSource
+
+' ══════════════════════════════════════════════
+'  DATA — REPOSITORY IMPLEMENTATIONS
+' ══════════════════════════════════════════════
+
+package "Data / Repositories" #FEF9E7 {
+
+    together {
+        class AuthRepositoryImpl {
+            - _remote : AuthRemoteDataSource
+            - _prefs  : SharedPreferences
+            + login(login, password)         : Future<Either<Failure, Unit>>
+            + register(name, login, pw, email) : Future<Either<Failure, Unit>>
+            + logout()                       : Future<void>
+            + hasSession()                   : Future<bool>
+        }
+
+        class WorkoutRepositoryImpl {
+            - _remote : WorkoutRemoteDataSource
+            + getAll()           : Future<Either<Failure, List<WorkoutEntity>>>
+            + getPage(page, ...) : Future<Either<Failure, PagedWorkoutsResult>>
+            + getById(id)        : Future<Either<Failure, WorkoutEntity>>
+        }
+
+        class ExerciseRepositoryImpl {
+            - _remote : ExerciseRemoteDataSource
+            + getAll()           : Future<Either<Failure, List<ExerciseEntity>>>
+            + getPage(page, ...) : Future<Either<Failure, PagedExercisesResult>>
+            + getById(id)        : Future<Either<Failure, ExerciseEntity>>
+        }
+    }
+
+    together {
+        class ProfileRepositoryImpl {
+            - _remote : ProfileRemoteDataSource
+            + getProfile()                       : Future<Either<Failure, ProfileEntity>>
+            + getGoals()                         : Future<Either<Failure, List<GoalEntity>>>
+            + updateProfile(UpdateProfileParams) : Future<Either<Failure, ProfileEntity>>
+        }
+
+        class WorkoutCalendarRepositoryImpl {
+            - _remote : WorkoutCalendarRemoteDataSource
+            + getMine(from?, to?) : Future<Either<Failure, List<WorkoutCalendarEntity>>>
+            + create(workoutId, date, status?) : Future<Either<Failure, WorkoutCalendarEntity>>
+            + update(entity)      : Future<Either<Failure, WorkoutCalendarEntity>>
+            + delete(id)          : Future<Either<Failure, void>>
+        }
+
+        class AiRepositoryImpl {
+            - _dataSource : AiRemoteDataSource
+            + getRecommendations() : Future<AiRecommendationResponseEntity>
+        }
+    }
+}
+
+AuthRepositoryImpl           ..|>  AuthRepository
+WorkoutRepositoryImpl        ..|>  WorkoutRepository
+ExerciseRepositoryImpl       ..|>  ExerciseRepository
+ProfileRepositoryImpl        ..|>  ProfileRepository
+WorkoutCalendarRepositoryImpl ..|> WorkoutCalendarRepository
+AiRepositoryImpl             ..|>  AiRepository
+
+AuthRepositoryImpl           ..>   AuthRemoteDataSource
+WorkoutRepositoryImpl        ..>   WorkoutRemoteDataSource
+ExerciseRepositoryImpl       ..>   ExerciseRemoteDataSource
+ProfileRepositoryImpl        ..>   ProfileRemoteDataSource
+WorkoutCalendarRepositoryImpl ..>  WorkoutCalendarRemoteDataSource
+AiRepositoryImpl             ..>   AiRemoteDataSource
+
+AuthRemoteDataSourceImpl     ..>   DioClient
+WorkoutRemoteDataSourceImpl  ..>   DioClient
+ExerciseRemoteDataSourceImpl ..>   DioClient
+ProfileRemoteDataSourceImpl  ..>   DioClient
+WorkoutCalendarRemoteDataSourceImpl ..> DioClient
+AiRemoteDataSourceImpl       ..>   DioClient
+
+' ══════════════════════════════════════════════
+'  PRESENTATION — BLOC / CUBITS
+' ══════════════════════════════════════════════
+
+package "Presentation / BLoC" #EDF2F7 {
+
+    together {
+        class AuthBloc {
+            - _loginUseCase    : LoginUseCase
+            - _registerUseCase : RegisterUseCase
+            - _authRepository  : AuthRepository
+            + add(AuthEvent)
+        }
+
+        class ForgotPasswordBloc {
+            - _useCase : ForgotPasswordUseCase
+            + add(ForgotPasswordEvent)
+        }
+
+        class ResetPasswordBloc {
+            - _useCase : ResetPasswordUseCase
+            + add(ResetPasswordEvent)
+        }
+    }
+
+    together {
+        class WorkoutsCubit {
+            - _getPage    : GetWorkoutsPageUseCase
+            + load()      : Future<void>
+            + refresh()   : Future<void>
+            + loadMore()  : Future<void>
+            + applyFilters(search, type?, complexity?) : Future<void>
+        }
+
+        class WorkoutDetailCubit {
+            - _getById : GetWorkoutByIdUseCase
+            + load(id) : Future<void>
+        }
+
+        class ExercisesCubit {
+            - _getPage   : GetExercisesPageUseCase
+            + load()     : Future<void>
+            + refresh()  : Future<void>
+            + loadMore() : Future<void>
+            + applyFilters(search, complexity?) : Future<void>
+        }
+
+        class ExerciseDetailCubit {
+            - _getById : GetExerciseByIdUseCase
+            + load(id) : Future<void>
+        }
+    }
+
+    together {
+        class ProfileCubit {
+            - _getProfile    : GetProfileUseCase
+            - _getGoals      : GetGoalsUseCase
+            - _updateProfile : UpdateProfileUseCase
+            + load()                          : Future<void>
+            + save(UpdateProfileParams)       : Future<void>
+        }
+
+        class TrainingCalendarCubit {
+            - _getWorkouts        : GetWorkoutsUseCase
+            - _calendarRepository : WorkoutCalendarRepository
+            + load(DateTime)                        : Future<void>
+            + scheduleWorkout(workoutId, date)      : Future<void>
+            + setEntryCompleted(entity, bool)       : Future<void>
+            + deleteEntry(id)                       : Future<void>
+        }
+
+        class AiRecommendationsCubit {
+            - _useCase : GetAiRecommendationsUseCase
+            + load()   : Future<void>
+        }
+    }
+}
+
+AuthBloc              ..>  LoginUseCase
+AuthBloc              ..>  RegisterUseCase
+AuthBloc              ..>  AuthRepository
+ForgotPasswordBloc    ..>  ForgotPasswordUseCase
+ResetPasswordBloc     ..>  ResetPasswordUseCase
+WorkoutsCubit         ..>  GetWorkoutsPageUseCase
+WorkoutDetailCubit    ..>  GetWorkoutByIdUseCase
+ExercisesCubit        ..>  GetExercisesPageUseCase
+ExerciseDetailCubit   ..>  GetExerciseByIdUseCase
+ProfileCubit          ..>  GetProfileUseCase
+ProfileCubit          ..>  UpdateProfileUseCase
+ProfileCubit          ..>  GetGoalsUseCase
+TrainingCalendarCubit ..>  WorkoutCalendarRepository
+AiRecommendationsCubit ..> GetAiRecommendationsUseCase
+
+' ══════════════════════════════════════════════
+'  PRESENTATION — PAGES
+' ══════════════════════════════════════════════
+
+package "Presentation / Pages" #F4ECF7 {
+
+    together {
+        class SoloCoachApp {
+            - _themeMode : ValueNotifier<ThemeMode>
+            + build()    : Widget
+        }
+
+        class AuthGate {
+            + build() : Widget
+        }
+
+        class HomeShellPage {
+            - _selectedIndex : int
+            + build()        : Widget
+        }
+    }
+
+    together {
+        class LoginPage {
+            - _loginCtrl    : TextEditingController
+            - _passwordCtrl : TextEditingController
+            + build()       : Widget
+        }
+
+        class RegisterPage {
+            - _nameCtrl     : TextEditingController
+            - _loginCtrl    : TextEditingController
+            - _emailCtrl    : TextEditingController
+            - _passwordCtrl : TextEditingController
+            + build()       : Widget
+        }
+
+        class ForgotPasswordPage {
+            - _emailCtrl : TextEditingController
+            + build()    : Widget
+        }
+
+        class ResetPasswordPage {
+            - _codeCtrl  : TextEditingController
+            - _pwCtrl    : TextEditingController
+            + build()    : Widget
+        }
+    }
+
+    together {
+        class WorkoutsPage {
+            + build() : Widget
+        }
+
+        class WorkoutDetailPage {
+            + workoutId : int
+            + build()   : Widget
+        }
+
+        class WorkoutSessionPage {
+            + workout : WorkoutEntity
+            + build() : Widget
+        }
+    }
+
+    together {
+        class ExercisesPage {
+            + build() : Widget
+        }
+
+        class ExerciseDetailPage {
+            + exerciseId : int
+            + build()    : Widget
+        }
+
+        class TrainingCalendarPage {
+            + build() : Widget
+        }
+    }
+
+    together {
+        class ProfilePage {
+            + build() : Widget
+        }
+
+        class AiRecommendationsPage {
+            + build() : Widget
+        }
+
+        class AccountCredentialsPage {
+            + build() : Widget
+        }
+    }
+}
+
+SoloCoachApp          *--  AuthGate
+AuthGate              ..>  AuthBloc
+AuthGate              *--  HomeShellPage
+HomeShellPage         *--  WorkoutsPage
+HomeShellPage         *--  ExercisesPage
+HomeShellPage         *--  TrainingCalendarPage
+HomeShellPage         *--  ProfilePage
+
+LoginPage             ..>  AuthBloc
+RegisterPage          ..>  AuthBloc
+ForgotPasswordPage    ..>  ForgotPasswordBloc
+ResetPasswordPage     ..>  ResetPasswordBloc
+WorkoutsPage          ..>  WorkoutsCubit
+WorkoutDetailPage     ..>  WorkoutDetailCubit
+WorkoutSessionPage    ..>  CompleteWorkoutSessionUseCase
+ExercisesPage         ..>  ExercisesCubit
+ExerciseDetailPage    ..>  ExerciseDetailCubit
+TrainingCalendarPage  ..>  TrainingCalendarCubit
+ProfilePage           ..>  ProfileCubit
+AiRecommendationsPage ..>  AiRecommendationsCubit
+
+@enduml
