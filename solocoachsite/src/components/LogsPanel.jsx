@@ -79,6 +79,22 @@ function LogsPanel({ token }) {
         >
           Обновить
         </button>
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm"
+          disabled={loading || logs.length === 0}
+          onClick={async () => {
+            if (!window.confirm('Вы уверены, что хотите удалить все логи? Это действие необратимо.')) return
+            try {
+              await apiRequest('/api/ApplicationLog/delete-all', { token, method: 'POST' })
+              setRefreshKey((value) => value + 1)
+            } catch (deleteError) {
+              setError(deleteError.message)
+            }
+          }}
+        >
+          Удалить все логи
+        </button>
       </div>
 
       {loading ? <p>Загрузка логов...</p> : null}

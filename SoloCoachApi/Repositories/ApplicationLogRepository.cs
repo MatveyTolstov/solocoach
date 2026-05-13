@@ -10,6 +10,7 @@ namespace SoloCoachApi.Repositories
         Task<ApplicationLog?> GetByIdAsync(int id);
         Task CreateAsync(ApplicationLog log);
         Task UpdateAsync(ApplicationLog log);
+        Task DeleteAllAsync();
     }
 
     public class ApplicationLogRepository : IApplicationLogRepository
@@ -43,6 +44,13 @@ namespace SoloCoachApi.Repositories
         public async Task UpdateAsync(ApplicationLog log)
         {
             _context.ApplicationLogs.Update(log);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAllAsync()
+        {
+            var allLogs = await _context.ApplicationLogs.ToListAsync();
+            _context.ApplicationLogs.RemoveRange(allLogs);
             await _context.SaveChangesAsync();
         }
     }

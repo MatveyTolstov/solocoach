@@ -20,6 +20,13 @@ namespace SoloCoachApi.Services
             _logger = logger;
         }
 
+        public async Task DeleteAllLogsAsync()
+        {
+            var allLogs = _context.ApplicationLogs.ToList();
+            _context.ApplicationLogs.RemoveRange(allLogs);
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Все логи приложения удалены.");
+        }
         public async Task LogActionAsync(int? userId, string action, string entityType, int? entityId, object? details, string status = "SUCCESS", string? errorMessage = null)
         {
             try

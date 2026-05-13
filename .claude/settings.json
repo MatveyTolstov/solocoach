@@ -1,11 +1,14 @@
 {
   "permissions": {
+    "allow": [
+      "Read(//d/GovnoCodeC/SoloCoachMobile/solocouchmobile/**)",
+      "Read(//d/GovnoCodeC/SoloCouchMobile/solocouchmobile/lib/data/models/**)",
+      "Read(//d/GovnoCodeC/SoloCoachApi2/SoloCoachApi/ModelDto/**)",
+      "Bash(xargs grep -l \"Recommendation\\\\|Ai\")"
+    ],
     "additionalDirectories": [
       "d:\\GovnoCodeC\\SoloCoachMobile\\solocouchmobile\\lib\\presentation\\pages",
       "d:\\GovnoCodeC\\SoloCoachMobile\\solocouchmobile\\lib"
-    ],
-    "allow": [
-      "Read(//d/GovnoCodeC/SoloCoachMobile/solocouchmobile/**)"
     ]
   }
 }

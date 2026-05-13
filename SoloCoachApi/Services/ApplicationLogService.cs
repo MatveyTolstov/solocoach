@@ -12,7 +12,10 @@ namespace SoloCoachApi.Services
         {
             _logRepository = logRepository;
         }
-
+        public async Task DeleteAllLogsAsync()
+        {
+            await _logRepository.DeleteAllAsync();
+        }
         public async Task LogActionAsync(
             string action,
             string entityType,

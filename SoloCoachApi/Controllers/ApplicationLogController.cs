@@ -26,6 +26,20 @@ namespace SoloCoachApi.Controllers
             _logger = logger;
         }
 
+        [HttpPost("delete-all")]
+        public async Task<IActionResult> DeleteAllLogs()
+        {
+            try
+            {
+                await _logService.DeleteAllLogsAsync();
+                return Ok(new { message = "Все логи приложения удалены." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpGet("admin")]
         public async Task<IActionResult> GetAllLogs()
         {
