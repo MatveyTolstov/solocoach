@@ -8,18 +8,15 @@ export const MANAGER_RESOURCE_KEYS = [
 
 export const ADMIN_DATABASE_KEYS = [
   'role',
-  'goal',
   'metricsUser',
   'workout',
   'exercise',
   'trainingExercise',
   'groupsMuscle',
   'exerciseGroupsMuscle',
-  'planWorkout',
   'workoutCalendarAdmin',
   'workoutUserAdmin',
   'workoutUserLogAdmin',
-  'applicationLog',
 ]
 
 export const ENTITY_CONFIGS = {
