@@ -115,14 +115,16 @@ namespace SoloCoachApi.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
+            var currentUserId = this.User.GetUserId();
+            if (id == currentUserId)
+                return BadRequest("Нельзя удалить самого себя.");
+
             try
             {
                 await _userService.DeleteAsync(id);
                 
-                // Логируем удаление пользователя
-                var userId = this.User.GetUserId();
                 await _loggingService.LogActionAsync(
-                    userId: userId,
+                    userId: currentUserId,
                     action: "DELETE_USER",
                     entityType: "User",
                     entityId: id,
@@ -134,9 +136,8 @@ namespace SoloCoachApi.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting user");
-                var userId = this.User.GetUserId();
                 await _loggingService.LogActionAsync(
-                    userId: userId,
+                    userId: currentUserId,
                     action: "DELETE_USER",
                     entityType: "User",
                     entityId: id,
