@@ -23,7 +23,8 @@ namespace SoloCoachApi.Services
                 query.Page,
                 query.PageSize,
                 query.Search,
-                query.Complexity);
+                query.Complexity,
+                query.MuscleGroup);
 
         public Task<ExerciseDto> CreateAsync(ExerciseDto dto) => _exerciseRepository.CreateExerciseAsync(dto);
 

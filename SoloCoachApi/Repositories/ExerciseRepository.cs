@@ -23,7 +23,10 @@ namespace SoloCoachApi.Repositories
                 throw new ArgumentException("ID упражнения должен быть положительным числом", nameof(id));
             }
 
-            var exercise = await _context.Exercises.FindAsync(id);
+            var exercise = await _context.Exercises
+                .Include(e => e.ExerciseGroupsMuscles)
+                    .ThenInclude(eg => eg.GroupsMuscle)
+                .FirstOrDefaultAsync(e => e.IdExercise == id);
 
             if (exercise == null)
             {
@@ -35,7 +38,10 @@ namespace SoloCoachApi.Repositories
 
         public async Task<List<ExerciseDto>> GetAllExercisesAsync()
         {
-            var exercises = await _context.Exercises.ToListAsync();
+            var exercises = await _context.Exercises
+                .Include(e => e.ExerciseGroupsMuscles)
+                    .ThenInclude(eg => eg.GroupsMuscle)
+                .ToListAsync();
             return exercises.Select(_exerciseMapper.ToDto).ToList();
         }
 
@@ -43,12 +49,17 @@ namespace SoloCoachApi.Repositories
             int page,
             int pageSize,
             string? search,
-            string? complexity)
+            string? complexity,
+            string? muscleGroup)
         {
             page = Math.Max(1, page);
             pageSize = Math.Clamp(pageSize, 1, 100);
 
-            var q = _context.Exercises.AsNoTracking().AsQueryable();
+            var q = _context.Exercises
+                .Include(e => e.ExerciseGroupsMuscles)
+                    .ThenInclude(eg => eg.GroupsMuscle)
+                .AsNoTracking()
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -62,6 +73,13 @@ namespace SoloCoachApi.Repositories
             {
                 var c = complexity.Trim();
                 q = q.Where(e => e.Complexity != null && e.Complexity == c);
+            }
+
+            if (!string.IsNullOrWhiteSpace(muscleGroup))
+            {
+                var mg = muscleGroup.Trim();
+                q = q.Where(e => e.ExerciseGroupsMuscles
+                    .Any(eg => eg.GroupsMuscle.Name == mg));
             }
 
             var total = await q.CountAsync();

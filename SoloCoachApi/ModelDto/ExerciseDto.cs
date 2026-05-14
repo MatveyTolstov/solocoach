@@ -21,5 +21,7 @@ namespace SoloCoachApi.ModelDto
         public required string PictureUrl { get; set; }
 
         public string? VideoUrl { get; set; }
+
+        public List<string>? MuscleGroups { get; set; }
     }
 }

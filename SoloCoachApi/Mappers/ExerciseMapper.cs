@@ -28,6 +28,9 @@ namespace SoloCoachApi.Mappers
                 Complexity = exercise.Complexity,
                 PictureUrl = exercise.PictureUrl,
                 VideoUrl = exercise.VideoUrl,
+                MuscleGroups = exercise.ExerciseGroupsMuscles
+                    .Select(eg => eg.GroupsMuscle.Name)
+                    .ToList(),
             };
         }
     }

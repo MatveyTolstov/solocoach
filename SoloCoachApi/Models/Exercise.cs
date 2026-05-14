@@ -24,5 +24,7 @@ namespace SoloCoachApi.Models
 
         [Column("video_url")]
         public string? VideoUrl { get; set; }
+
+        public virtual ICollection<ExerciseGroupsMuscle> ExerciseGroupsMuscles { get; set; } = new List<ExerciseGroupsMuscle>();
     }
 }

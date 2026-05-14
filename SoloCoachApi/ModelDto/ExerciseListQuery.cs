@@ -15,4 +15,7 @@ public class ExerciseListQuery
 
     [MaxLength(50)]
     public string? Complexity { get; set; }
+
+    [MaxLength(100)]
+    public string? MuscleGroup { get; set; }
 }
