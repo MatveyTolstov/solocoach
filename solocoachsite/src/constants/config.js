@@ -171,6 +171,7 @@ export const ENTITY_CONFIGS = {
     tableColumns: [
       { key: 'name', label: 'Название' },
       { key: 'complexity', label: 'Сложность' },
+      { key: 'description', label: 'Описание' },
       { key: 'pictureUrl', label: 'Картинка' },
       { key: 'videoUrl', label: 'GIF', type: 'gif' },
     ],
