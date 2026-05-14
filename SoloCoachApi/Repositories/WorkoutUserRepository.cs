@@ -75,7 +75,7 @@ namespace SoloCoachApi.Repositories
             }
 
             existing.WorkoutId = dto.WorkoutId;
-            existing.Date = dto.Date;
+            existing.Date = DateTime.SpecifyKind(dto.Date, DateTimeKind.Utc);
             existing.Duration = dto.Duration;
             existing.Status = dto.Status;
 

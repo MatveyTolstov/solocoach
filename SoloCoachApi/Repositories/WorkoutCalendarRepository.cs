@@ -83,7 +83,7 @@ namespace SoloCoachApi.Repositories
 
             existing.UserId = dto.UserId;
             existing.WorkoutId = dto.WorkoutId;
-            existing.Date = dto.Date;
+            existing.Date = DateTime.SpecifyKind(dto.Date, DateTimeKind.Utc);
             existing.Status = dto.Status;
 
             await _context.SaveChangesAsync();

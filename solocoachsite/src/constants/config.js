@@ -345,14 +345,13 @@ export const ENTITY_CONFIGS = {
       { key: 'repetitions', label: 'Повторения' },
       { key: 'sets', label: 'Подходы' },
       { key: 'weight', label: 'Вес' },
-      { key: 'status', label: 'Статус' },
     ],
     formFields: [
-      { 
-        key: 'workoutUserId', 
-        label: 'Сессия', 
-        type: 'number', 
-        required: true 
+      {
+        key: 'workoutUserId',
+        label: 'Сессия',
+        type: 'number',
+        required: true
       },
       { 
         key: 'workoutId', 

@@ -13,7 +13,7 @@ namespace SoloCoachApi.Mappers
                 UserId = dto.UserId,
                 WorkoutId = dto.WorkoutId,
                 Status = dto.Status,
-                Date = dto.Date
+                Date = DateTime.SpecifyKind(dto.Date, DateTimeKind.Utc)
             };
         }
 
