@@ -95,6 +95,12 @@ namespace SoloCoachApi.Repositories
                 throw new KeyNotFoundException($"Метрики пользователя с ID {id} не существуют");
             }
 
+            var linkedUsers = await _context.Users
+                .Where(u => u.MetricsUserId == id)
+                .ToListAsync();
+            foreach (var u in linkedUsers)
+                u.MetricsUserId = null;
+
             _context.MetricsUsers.Remove(metrics);
             await _context.SaveChangesAsync();
         }

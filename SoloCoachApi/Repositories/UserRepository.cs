@@ -99,8 +99,19 @@ namespace SoloCoachApi.Repositories
                 throw new KeyNotFoundException($"Пользователь с ID {id} не найден");
             }
 
+            int? metricsId = user.MetricsUserId;
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
+
+            if (metricsId.HasValue)
+            {
+                var metrics = await _context.MetricsUsers.FindAsync(metricsId.Value);
+                if (metrics != null)
+                {
+                    _context.MetricsUsers.Remove(metrics);
+                    await _context.SaveChangesAsync();
+                }
+            }
         }
 
         public async Task<bool> IsEmailTakenAsync(int id, string email)
