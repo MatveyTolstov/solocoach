@@ -82,6 +82,19 @@ function CrudSection({ token, config }) {
     setCreateForm(initial)
   }, [config.formFields])
 
+  useEffect(() => {
+    setCreateForm((prev) => {
+      const next = { ...prev }
+      config.formFields.forEach((f) => {
+        if (f.type !== 'select') return
+        if (next[f.key] !== '' && next[f.key] != null) return
+        const opts = f.staticOptions || selectOptions[f.key] || []
+        if (opts.length > 0) next[f.key] = opts[0].value
+      })
+      return next
+    })
+  }, [selectOptions, config.formFields])
+
   const buildBody = (form, fields) => {
     const body = {}
     for (const field of fields) {
