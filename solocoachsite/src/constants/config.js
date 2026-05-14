@@ -82,18 +82,35 @@ export const ENTITY_CONFIGS = {
       { key: 'height', label: 'Рост (см)', type: 'number', step: '0.1', required: true },
       { key: 'weight', label: 'Вес (кг)', type: 'number', step: '0.1', required: true },
       { key: 'age', label: 'Возраст', type: 'number', required: true },
-      { key: 'gender', label: 'Пол', type: 'text', required: true },
+      {
+        key: 'gender',
+        label: 'Пол',
+        type: 'select',
+        required: true,
+        staticOptions: [
+          { label: 'Мужчина', value: 'Мужчина' },
+          { label: 'Женщина', value: 'Женщина' },
+        ],
+      },
       {
         key: 'experienceLevel',
         label: 'Уровень опыта',
-        type: 'text',
-        emptyAsNull: true,
+        type: 'select',
+        staticOptions: [
+          { label: 'Начинающий', value: 'Начинающий' },
+          { label: 'Средний', value: 'Средний' },
+          { label: 'Продвинутый', value: 'Продвинутый' },
+        ],
       },
       {
         key: 'activityLevel',
         label: 'Уровень активности',
-        type: 'text',
-        emptyAsNull: true,
+        type: 'select',
+        staticOptions: [
+          { label: 'Лёгкая', value: 'Лёгкая' },
+          { label: 'Умеренная', value: 'Умеренная' },
+          { label: 'Интенсивная', value: 'Интенсивная' },
+        ],
       },
       { 
         key: 'goalId', 
