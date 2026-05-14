@@ -298,7 +298,15 @@ export const ENTITY_CONFIGS = {
         required: true, 
         selectOptions: { apiPath: '/api/Workout', labelField: 'name', valueField: 'idWorkout' } 
       },
-      { key: 'status', label: 'Статус', type: 'text', emptyAsNull: true },
+      {
+        key: 'status',
+        label: 'Статус',
+        type: 'select',
+        staticOptions: [
+          { label: 'Запланирована', value: 'Запланирована' },
+          { label: 'Выполнена', value: 'Выполнена' },
+        ],
+      },
       { key: 'date', label: 'Дата', type: 'datetime-local', required: true },
     ],
   },
@@ -363,7 +371,6 @@ export const ENTITY_CONFIGS = {
       { key: 'repetitions', label: 'Повторения', type: 'number', required: true },
       { key: 'sets', label: 'Подходы', type: 'number', required: true },
       { key: 'weight', label: 'Вес', type: 'number', step: '0.1', required: true },
-      { key: 'status', label: 'Статус', type: 'text', emptyAsNull: true },
     ],
   },
   applicationLog: {
